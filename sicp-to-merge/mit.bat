@@ -1,0 +1,1 @@
+mit-scheme --library "D:\mit-scheme\lib"

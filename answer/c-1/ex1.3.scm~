@@ -1,0 +1,18 @@
+(define (sum-larger-v1 a b c)
+  (define (sum-of-squares a b)
+    (+ (square a) (square b)))
+  (cond ((and (> a c) (> b c)) (sum-of-squares a b))
+	((and (> a b) (> c b)) (sum-of-squares a c))
+	(else (sum-of-squares b c))))
+
+
+(define (sum-larger-v2 a b c)
+  (define (smallest-of-three)
+    (cond ((and (> a c) (> b c)) c)
+	  ((and (> a b) (> c b)) b)
+	  (else a)))
+  (define (sum-of-squares)
+    (+ (square a) (square b) (square c)))
+  (- (sum-of-squares) (square (smallest-of-three))))
+
+

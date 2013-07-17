@@ -1,0 +1,101 @@
+
+compat.scm,584
+(define (alphaless? 52,2014
+(define (and* 55,2116
+(define (digit? 61,2239
+(define (singleton-symbol? 64,2323
+(define (ascii 68,2438
+(define (atom? 76,2690
+(define (or* 79,2738
+(define char 85,2865
+(define nil 87,2892
+(define t 88,2911
+(define (nth 90,2928
+(define (nthcdr 93,2965
+(define (explode 96,3006
+(define (implode 103,3200
+(define (close-channel 115,3500
+(define (tyi 120,3691
+(define (tyipeek 130,3898
+(define (tyo 140,4109
+(define (print-depth 146,4276
+(define (print-breadth 153,4560
+(define (vector-cons 160,4850
+(define (read-from-keyboard)163,4910
+
+genenv.scm,74
+(define build-environment)39,1553
+(define make-unassigned-object41,1581
+
+graphics.scm,281
+(define clear-graphics)40,1583
+(define clear-point)41,1607
+(define draw-line-to)42,1628
+(define draw-point)43,1650
+(define graphics-available?)44,1670
+(define graphics-text)45,1699
+(define init-graphics)46,1722
+(define position-pen)47,1745
+(define graphics-package49,1768
+
+sbuild.scm,31
+(define student-system39,1548
+
+stream.scm,588
+(define (nth-stream 41,1563
+(define (accumulate 49,1722
+(define (filter 57,1922
+(define (map-stream 66,2134
+(define (map-stream-2 72,2300
+(define (append-streams 79,2504
+(define (enumerate-fringe 85,2637
+(define (add-streams 93,2847
+(define (scale-stream 100,3025
+(define (enumerate-interval 103,3092
+(define (integers-from 108,3224
+(define integers111,3293
+(define (merge 116,3358
+(define print-stream137,3753
+(define (flatmap 155,4112
+(define (flatten 158,4165
+(define (accumulate-delayed 163,4274
+(define (interleave-delayed 171,4500
+(define ((spread-tuple 178,4700
+
+strmac.scm,0
+
+studen.scm,1361
+(define environment-warning-hook)67,2357
+(define user-global-environment)69,2392
+(define student-package71,2426
+(define sicp-parser-table76,2498
+(define *student-parser-table*)79,2575
+(define sicp-syntax-table81,2608
+(define *student-syntax-table*)84,2658
+(define (enable-system-syntax)86,2691
+(define (disable-system-syntax)90,2850
+(define (initialize-syntax!)94,3002
+(define (global-environment-enabled?)129,4391
+(define (in-user-environment-chain? 133,4550
+(define ic-environment/remove-parent!)138,4766
+(define ic-environment/set-parent!)139,4805
+(define (disable-global-environment)145,5048
+(define (enable-global-environment)149,5157
+(define (student-environment-warning-hook 154,5296
+(define (enable-language-features 166,5636
+(define (disable-language-features 174,5803
+(define (language-features-enabled?)182,5973
+(define user-global-names187,6077
+(define (warn-about-missing-objects 413,9478
+(define (setup-user-global-environment!)421,9649
+(define student-band-pathname)447,10483
+(define (initialize-system)449,10515
+(define (reload 470,11138
+(define (student-band 477,11333
+(define (student-dump 484,11564
+(define enable-language-features492,11666
+(define disable-language-features495,11753
+(define reload498,11842
+(define student-band501,11893
+(define student-dump504,11956
+(set! environment-warning-hook512,12201

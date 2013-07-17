@@ -1,0 +1,4 @@
+(define einstein 
+  (load-painter 
+   (build-path (this-expression-source-directory)
+               "einstein.gif")))

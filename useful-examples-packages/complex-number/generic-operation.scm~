@@ -1,0 +1,88 @@
+;;;;;;;;;;;;;; generic arithmetic procedures ;;;;;;;;;;;
+(define (add x y) (apply-generic 'add x y))
+(define (sub x y) (apply-generic 'sub x y))
+(define (mul x y) (apply-generic 'mul x y))
+(define (div x y) (apply-generic 'div x y))
+
+;;;;;;;;;;;;;; generic selectors ;;;;;;;;;;;;;;
+(define (real-part z) (apply-generic 'real-part z))
+(define (imag-part z) (apply-generic 'imag-part z))
+(define (magnitude z) (apply-generic 'magnitude z))
+(define (angle z) (apply-generic 'angle z))
+
+;;;;;;; operations on scheme and rational number ;;;;;;
+(define (sine x) (apply-generic 'sine x))
+(define (cosine x) (apply-generic 'cosine x))
+(define (atang x) (apply-generic 'atang x))
+(define (sqrt-g x) (apply-generic 'sqrt-g x))
+(define (square-g x) (apply-generic 'square-g x))
+
+;;;;;;; predicates ;;;;;;;;;;;;;;;;
+(define (equ? x y)
+  (apply-generic 'equ? x y))
+
+(define (=zero? x)
+  (apply-generic '=zero? x))
+
+;;;;;; raise and drop type procedures ;;;;;;;;;;;;;;
+(define (raise x)
+  (apply-generic 'raise x))
+
+(define (drop x)
+  (let ((d-p (get 'drop (list (type-tag x)))))
+	(if d-p
+		(let ((dropped (d-p (contents x))))
+		  (if (equ? dropped x)
+			  (drop dropped)
+			  x))
+		x)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; apply-generic ;;;;;;;;;;;;;;;;;;
+;;;; hierarchy of types, low -> high
+(define hierarchy '(integer rational real complex))
+(define need-drop-op-list '(add sub mul div square-g))
+
+(define (apply-generic op . args)
+  (define (need-drop? op)
+	(memq op need-drop-op-list))
+
+  ;;;;;;; chcek 
+  (define (check-type-list type-list)
+	(define (same-type? lst)
+	  (let ((type (car lst)))
+		(every (lambda (x) (eq? x type)) lst)))
+	(define (valid-type? type)
+	  (memq type hierarchy))
+	
+	(and (not (same-type? type-list))
+		 (every valid-type? type-list)))
+
+  ;;;;;;; find highest type
+  (define (find-highest-type type-list)
+	(define (type-to-position type)
+	  (- (length hierarchy) (length (memq type hierarchy))))
+
+	(list-ref hierarchy (apply max (map type-to-position type-list))))
+
+  ;;;;;;;;;;;;;;;; raise to target type
+  (define (raise-to-highest arg-list target-type)
+	(define (raise-to arg target-type)
+	  (if (eq? (type-tag arg) target-type)
+		  arg
+		  (raise-to (raise arg) target-type)))
+
+	(map (lambda (type) (raise-to type target-type)) arg-list))
+
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (if (need-drop? op) 
+			  (apply proc (map contents args)) ;; need att
+			  (apply proc (map contents args))) 
+		  (if (not (check-type-list type-tags))
+			  (error "No method for these types"
+					 (list op type-tags))
+			  (apply apply-generic
+					 (append (list op)
+							 (raise-to-highest args
+											   (find-highest-type type-tags)))))))))

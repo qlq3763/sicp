@@ -1,0 +1,4 @@
+(define (integrate-series s)
+  (stream-map / s (integers-starting-from 1)))
+
+(show-stream (integrate-series ones) 14)

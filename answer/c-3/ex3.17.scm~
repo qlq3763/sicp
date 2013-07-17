@@ -1,0 +1,14 @@
+(define (count-pairs x)
+  (define (count y visited)
+	(if (or (not (pair? y)) 
+			(memq (car y) visited))
+		0
+		(begin (set! visited (cons (car y) visited))
+			   (+ (count (car y) visited)
+				  (count (cdr y) visited)
+				  1)))))
+
+(print (count-pairs n-3))
+(print (count-pairs n-4))
+(print (count-pairs n-7))
+(print (count-pairs n-never))

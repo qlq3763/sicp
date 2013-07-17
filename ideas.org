@@ -1,0 +1,6 @@
+1. Memoization: store the previously computation to avoid redundant
+   computing. Could be used with the "divide and conquer" paradigm. 
+   
+   Example: Exercise 3.27. This one is hard to use, the ideal
+   memoization should impose no or little overhead on the original
+   version. 

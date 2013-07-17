@@ -1,0 +1,7 @@
+(define rand
+  (let ((x random-init))
+	(define (reset new-val)
+	  (set! x new-val))
+
+	(lambda (msg)
+	  (eq? 

@@ -1,0 +1,47 @@
+(define (stream-enumerate-interval low high)
+  (if (> low high)
+      the-empty-stream
+      (cons-stream
+       low
+       (stream-enumerate-interval (+ low 1) high))))
+
+(define (display-line x)
+  (newline)
+  (display x))
+
+(define (display-stream s)
+  (stream-for-each display-line s))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define sum 0)
+
+(define (accum x)
+  (set! sum (+ x sum))
+  sum)
+
+(define seq (stream-map accum (stream-enumerate-interval 1 20)))
+;; 1
+(display-line sum)
+
+(define y (stream-filter even? seq))
+;; 3
+(display-line sum)
+
+(define z (stream-filter (lambda (x) (= (remainder x 5) 0))
+                         seq))
+;; 12
+(display-line sum)
+
+(stream-ref y 7)
+;; sum: 25
+;; print: 7
+(display-line sum)
+
+(display-stream z)
+;; sum: 210
+;; print: 5, 10, 15, 20
+(display-line sum)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+

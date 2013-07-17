@@ -1,0 +1,45 @@
+* Lecture 1a
+1# Computer science vs computer art
+
+2# Computer science is not that much about computer, but focuses on
+how to formalize process--how to do things. And procedure--local
+prescription of process, is used to generate the process we want.
+
+3# Declarative vs Imperative knowledge.
+
+4# Techniques used to design procedure to generating complex
+processes: black-box abstraction, conventional interface, and
+metalinguistic abstraction.
+
+* Lecture 1b
+1# kinds of expressions: number, symbols, [lambda-expression,
+definition, condition](there three are special forms), and
+combinations(which can be analyzed by substitution model).
+
+2# linear iteration process: time-O(n), space-O(1)
+   linear recursion process: time-O(n), space-O(n)
+
+3# The power of naming a function.
+
+4# Recursion keeps some states "under the table".
+
+5# Procedure is just local rules for a process.
+
+* Lecture 2a
+1# decouple, fixed-point, wishful thinking.
+
+2# function computed by a procedure.
+
+* Lecture 2b
+1# Data abstraction: separate use from representation. Use and
+interpret some procedures, lists and thinks like those as one concept,
+see them as a whole.
+
+2# let vs define: make a context within which some variables have
+meaning.
+
+3# Abstract data as a contract.
+
+4# procedures as objects.
+
+* 3a

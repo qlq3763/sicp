@@ -1,0 +1,11 @@
+If I want to use numbers(Integer and real) like the built-in ones. I
+have to change the procedures manipulating tags:attach-tag, tag-type
+and contents. And I think this is a "case on type" style(which I don't
+like), and this method also put some "business" about Integer and
+real-number to the tag-manipulating procedures(I don't like either). 
+
+I've split integer and real number into two packages. But this also 
+has some tricky points: I can not use attach-tag in integer and real
+number package, because some operations on integer will produce real
+number and vice versa. For example (sine 3) will procedure a real
+number and (add 0.5 0.5) will produce an integer.

@@ -1,0 +1,8 @@
+(define (averager a b c)
+  (let ((p (make-connector))
+		(h (make-connector)))
+	(adder a b p)
+	(multiplier p h c)
+	(constant 1/2 h)))
+
+;; test, todo

@@ -1,0 +1,1636 @@
+* 3.1 Assignments and Local States
+** Exercise 3.1
+(define (make-accumulator sum)
+  (lambda (addend)
+	(begin
+	  (set! sum (+ sum addend))
+	  sum)))
+
+(define a1 (make-accumulator 4))
+(print (a1 4))
+(print (a1 -4))
+
+(define a2 (make-accumulator 14))
+(print (a2 4))
+(print (a2 -4))
+
+** Exercise 3.2
+(define (make-monitored f)
+  (let ((count 0))
+	(lambda (m)
+	  (cond ((eq? m 'how-many-calls?) 
+			 count)
+			((eq? m 'reset-count) 
+			 (set! count 0))
+			(else 
+			 (set! count (+ count 1))
+			 (f m))))))
+
+(define m-sqrt (make-monitored sqrt))
+
+(print (m-sqrt 100))
+(print (m-sqrt 'how-many-calls?))
+
+(print (m-sqrt 9))
+(print (m-sqrt 'how-many-calls?))
+
+(m-sqrt 'reset-count)
+
+(print (m-sqrt 'how-many-calls?))
+(print (m-sqrt 16))
+(print (m-sqrt 'how-many-calls?))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define m-sqrt2 (make-monitored sqrt))
+
+(print (m-sqrt2 100))
+(print (m-sqrt2 'how-many-calls?))
+
+(print (m-sqrt2 9))
+(print (m-sqrt2 'how-many-calls?))
+
+(m-sqrt2 'reset-count)
+
+(print (m-sqrt2 'how-many-calls?))
+(print (m-sqrt2 16))
+(print (m-sqrt2 'how-many-calls?))
+
+** Exercise 3.3
+(define (make-account balance password)
+  (define (withdraw amount)
+	(if (>= balance amount)
+		(begin (set! balance (- balance amount))
+			   balance)
+		"Insufficient funds"))
+
+  (define (deposit amount)
+	(set! balance (+ balance amount))
+	balance)
+
+  ;; (define (fake amount)
+  ;; 	"")
+
+  ;; (define (print-error info)
+  ;; 	(print info)
+  ;; 	fake)
+
+  ;; strange functin, yeah I know
+  (define (generate-error-msg amount)
+	"Incorrect password") 
+
+  (define (dispatch passwd msg)
+	(if (eq? passwd password)
+		(cond ((eq? msg 'withdraw) withdraw)
+			  ((eq? msg 'deposit) deposit)
+			  (else (error "Unknown request -- MAKE-ACCOUNT"
+						   msg)))
+		generate-error-msg))
+  
+  dispatch)
+
+(define acc (make-account 100 'pass))
+
+(print ((acc 'pass 'withdraw) 44))
+(print ((acc 'pass 'withdraw) 64))
+(print ((acc 'pasd 'withdraw) 44))
+
+(print ((acc 'pass 'deposit) 40))
+(print ((acc 'pasd 'deposit) 60))
+
+** Exercise 3.4
+(define (make-account balance password)
+  (define (withdraw amount)
+	(if (>= balance amount)
+		(begin (set! balance (- balance amount))
+			   balance)
+		"Insufficient funds"))
+
+  (define (deposit amount)
+	(set! balance (+ balance amount))
+	balance)
+
+  ;; strange functin, yeah I know
+  (define (generate-error-msg amount)
+	"Incorrect password") 
+
+  (define (call-the-cops)
+	(print "has called the cops"))
+
+  ;; need to call ((acc2 'passd 'deposit) 4) explicitly!!!!
+  ;; to update tries
+  ;; (let ((tries 0))
+  ;; 	(lambda (passwd msg)
+  ;; 	  (if (eq? passwd password)
+  ;; 		  (begin (set! tries 0)
+  ;; 				 (cond ((eq? msg 'withdraw) withdraw)
+  ;; 					   ((eq? msg 'deposit) deposit)
+  ;; 					   (else (error "Unknown request -- MAKE-ACCOUNT"
+  ;; 									msg))))
+  ;; 		  (begin 
+  ;; 			(set! tries (+ tries 1))
+  ;; 			(if (> tries 7) (call-the-cops))
+  ;; 			generate-error-msg)))))
+
+  (let ((tries 0))
+  	(define (dispatch passwd msg)
+	  (if (eq? passwd password)
+		  (begin (set! tries 0)
+				 (cond ((eq? msg 'withdraw) withdraw)
+					   ((eq? msg 'deposit) deposit)
+					   (else (error "Unknown request -- MAKE-ACCOUNT"
+									msg))))
+		  (begin 
+			(set! tries (+ tries 1))
+			(if (> tries 7) (call-the-cops)) ;; if ends here
+			generate-error-msg)))
+	dispatch))
+;; (define acc (make-account 100 'pass))
+
+;; (print ((acc 'pass 'withdraw) 44))
+;; (print ((acc 'pass 'withdraw) 64))
+;; (print ((acc 'pasd 'withdraw) 44))
+
+;; (print ((acc 'pass 'deposit) 40))
+;; (print ((acc 'pasd 'deposit) 60))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define acc2 (make-account 100 'pass))
+
+;; call function n times
+(define (n-times n f arg)
+  (if (> n 0)
+	  (begin (f arg)
+			 (n-times (- n 1) f arg))))
+
+;; these are wrong, incorrect will be euqal to generate-error-msg and
+;; correct will be equal to deposit, won't need to get the lambda clouse
+;; again, tries will not get updated
+
+;; (define correct (acc2 'pass 'deposit))
+;; (define incorrect (acc2 'pasd 'deposit))
+
+;; need to call ((acc2 'passd 'deposit) 4) explicitly!!!!
+
+;; Please Note the difference between the following three:
+
+;; 1#
+;; ((acc2 'pasd 'deposit) 4)
+;; ((acc2 'pasd 'deposit) 4)
+;; ((acc2 'pasd 'deposit) 4)
+;; ((acc2 'pasd 'deposit) 4)
+
+;; 2#
+;; (incorrect 4)
+;; (incorrect 4)
+;; (incorrect 4)
+;; (incorrect 4)
+
+;; 3# 
+;; (n-times 4 incorrect 4)
+
+;; Case 2# and 3# have the same effect, they just update "tries" just once, 
+;; when incorrect was defined. However, Case 1# update "tries" four times, 
+;; which is what we actually want.
+
+** Exercise 3.5
+;; left lower (x1, y1)
+;; right upper (x2, y2)
+(define (estimate-integral p x1 x2 y1 y2 trials)
+  (define (test)
+	(p (random-in-range x1 x2) (random-in-range y1 y2)))
+  (* (* (- x2 x1) 
+		(- y2 y1))
+	 (monte-carlo trials test)))
+
+(define (estimate-pi trials)
+  (define (p x y)
+	(<= (+ (square x) (square y))
+		1.0))
+  (estimate-integral p -1.0 1.0 -1.0 1.0 trials))
+
+(define (random-in-range low high)
+  (let ((range (- high low)))
+	(+ low (random range))))
+
+(define (monte-carlo trials experiment)
+  (define (iter trials-remaining trials-passed)
+	(cond ((= trials-remaining 0)
+		   (/ trials-passed trials))
+		  ((experiment)
+		   (iter (- trials-remaining 1) (+ trials-passed 1)))
+		  (else
+		   (iter (- trials-remaining 1) trials-passed))))
+  (iter trials 0))
+
+;; from http://wqzhang.wordpress.com/2009/07/11/sicp-exercise-3-5/
+;; using 2.0 instead of 2 in estimate-integral is primordial. If you pass
+;; two integers to (random-in-range low high), it will return another
+;; integer strictly inferior to your 'high' value — and this completely
+;; screws the Monte-Carlo method (it then estimates pi to ~3.00). 
+
+** Exercise 3.6
+;; fake fake "random" test
+(define random-init 1)
+(define (rand-update x)
+  (+ x 1))
+
+(define rand
+  (let ((x random-init))
+	(define (reset new-val)
+	  (set! x new-val)
+	  x)
+
+	(define (dispatch msg)
+	  (cond ((eq? msg 'generate)
+			 (set! x (rand-update x))
+			 x)
+			((eq? msg 'reset)
+			 reset)
+			(else
+			 (error "Unknown requent -- RAND" msg))))
+	dispatch))
+
+
+
+
+;; Strange
+;; (define x 14)
+
+;; (define (reset1 new-val)
+;;   (set! x new-val)
+;;   new-val)
+
+;; (define (reset2 new-val)
+;;   (set! x new-val)
+;;   x)
+
+;; This two has different value, reset1 has new-val, but reset2 has
+;; old x
+
+;; Now could not get that strange behavior, ...
+
+** Exercise 3.7
+(define (make-joint account org-passwd new-passwd)
+  ;; strange functin, yeah I know
+  (define (generate-error-msg amount)
+	"Incorrect password") 
+  
+  ;; suppose org-passwd is always correct
+  (define (dispatch passwd msg)
+	(if (eq? passwd new-passwd)
+		(account org-passwd msg) 
+		generate-error-msg))
+
+  dispatch)
+
+(define org-ac (make-account 14 'org))
+(define new-ac (make-joint org-ac 'org 'new))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; another version, which "checks" the validity of org-passwd
+(define (make-joint account org-passwd new-passwd)
+  ;; strange functin, yeah I know
+  (define (generate-error-msg amount)
+	"Incorrect password") 
+  
+  (define (dispatch passwd msg)
+	(if (eq? passwd new-passwd)
+		(account org-passwd msg) 
+		generate-error-msg))
+
+  ;; didn't think out to add this "layer" the frist time.
+  ;; actually, it took a long time for me to get the idea of
+  ;; adding this layer
+  (let ((rst ((account org-passwd 'withdraw) 0)))
+	(if (and (string? rst)
+			 (string=? rst "Incorrect password"))
+		(print "Incorrect password for original account")
+		dispatch)))
+
+(define org-ac (make-account 14 'org))
+(define new-ac (make-joint org-ac 'org 'new))
+(define new-ac2 (make-joint org-ac 'org 'new2))
+(define new-ac3 (make-joint new-ac 'new 'new3))
+
+(define new-err (make-joint org-ac 'og 'err))
+
+** Exercise 3.8
+(define f
+  (let ((state 0))
+	(lambda (x)
+	  (cond ((= x 0)
+			 (set! state 1)
+			 0)
+			(else
+			
+			 (if (= state 1)
+				 0
+				 1))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; version 2
+(define f2
+  (let ((state 0)
+		(old-state 0))
+	(lambda (x)
+	  (cond ((= x 0)
+			 (set! state 1)
+			 0)
+			(else
+			 (set! old-state state)
+			 (set! state 0)
+			 (if (= old-state 1)
+				 0
+				 1))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; version 3
+;; from http://wqzhang.wordpress.com/2009/07/13/sicp-exercise-3-8/
+(define f3
+  (let ((state 0))
+    (define (switch-state x)
+      (let ((old-state state))
+        (set! state (+ x state))
+        old-state))
+    switch-state))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; version 4
+(define f4
+  (let ((state 0)
+		(old-state 0))
+	(lambda (x)
+	  (let ((rst old-state))
+		(set! old-state state)
+		(cond ((= x 0)
+			   (set! state 0)
+			   rst)
+			  (else
+			   (set! old-state 1)
+			   rst))))))
+
+;; Notice the difference between f1, f2, f3, f4
+;; What I want is this two "+" expression gives the same result.
+
+;; Actually none of them was what I want. The reason is that the
+;; value (f x) returns is highly depend on the previous calls to 
+;; f.
+
+;; "+" gives the same result for f4 because "+" evaluates its arguments
+;; from right to left; otherwise, this case will give different results.
+
+(print (+ (f 0) (f 1)))
+(print (+ (f 0) (f 1)))
+
+(print (+ (f2 0) (f2 1)))
+(print (+ (f2 0) (f2 1)))
+
+
+(print (+ (f3 0) (f3 1)))
+(print (+ (f3 0) (f3 1)))
+
+(print (+ (f4 0) (f4 1)))
+(print (+ (f4 0) (f4 1)))
+;; (print (f 1))
+;; (print (f 1))
+;; (print (f 0))
+;; (print (f 1))
+;; (print (f 0))
+
+* 3.2 The Environment Model of Evaluation
+
+** Exercise 3.9
+See paper and pic.
+
+** Exercise 3.10
+See paper and pic.
+
+** Exercise 3.11
+See paper and pic.
+
+* 3.3 Modeling with Mutable Data
+
+** Exercise 3.12
+;; (b)
+;; (b c d)
+
+(define (append! x y)
+  (set-cdr! (last-pair x) y)
+  x)
+
+(define (last-pair x)
+  (if (null? (cdr x))
+	  x
+	  (last-pair (cdr x))))
+
+(define x (list 'a 'b))
+(define y (list 'c 'd))
+(define z (append x y))
+(print z)
+(print (cdr x))
+
+(define w (append! x y))
+(print w)
+(print (cdr x))
+
+;; also see pic
+
+** Exercise 3.13
+Infinite loop occurs.
+
+;; also see pic
+
+(define (make-cycle x)
+  (set-cdr! (last-pair x) x)
+  x)
+
+(define z (make-cycle (list 'a 'b 'c)))
+
+(define (last-pair x)
+  (if (null? (cdr x))
+	  x
+	  (begin (print (car x))
+			 (last-pair (cdr x)))))
+
+** Exercise 3.14
+;; msytery reverse the list given as argument.
+;; v: ('a)
+;; w: ('d 'c 'b 'a)
+;; also see pic
+
+(define (mystery x)
+  (define (loop x y)
+    (if (null? x)
+        y
+        (let ((temp (cdr x)))
+          (set-cdr! x y)
+          (loop temp x))))
+  (loop x '()))
+
+(define v (list 'a 'b 'c 'd))
+(define w (mystery v))
+
+** Exercise 3.15
+;; also see pic
+
+(define x (list 'a 'b))
+(define z1 (cons x x))
+
+(define z2 (cons (list 'a 'b) (list 'a 'b)))
+
+(define (set-to-wow! x)
+  (set-car! (car x) 'wow)
+  x)
+
+(print z1)
+(set-to-wow! z1)
+(print z1)
+
+(print z2)
+(set-to-wow! z2)
+(print z2)
+
+(print x)
+
+(print (eq? (car z1) (cdr z1)))
+(print (eq? (car z2) (cdr z2)))
+
+** Exercise 3.16
+(define (count-pairs x)
+  (if (not (pair? x))
+      0
+      (+ (count-pairs (car x))
+         (count-pairs (cdr x))
+         1)))
+
+;; also see pic
+(define n-3 (list 1 2 3))
+(print n-3)
+(print (count-pairs n-3))
+
+(print "***********")
+
+(define x (list 1))
+(define n-4 (list x x))
+(print n-4)
+(print (count-pairs n-4))
+
+(print "***********")
+
+(define x1 (list 1))
+(define x2 (cons x1 x1))
+(define n-7 (cons x2 x2))
+(print n-7)
+(print (count-pairs n-7))
+
+(print "***********")
+;; use make circle from ex3.13
+
+(define n-never (make-cycle (list 1 2 3)))
+;; (print n-never)
+;; (print (count-pair n-never))
+
+(print "***********")
+
+** Exercise 3.17
+;; (define visited '())
+(define (count-pairs x)
+  (let ((visited '()))
+	(define (count y)
+	  (if (or (not (pair? y))
+			  (memq y visited))
+		  0
+		  (begin (set! visited (cons y visited))
+				 (+ (count (car y))
+					(count (cdr y))
+					1))))
+	(count x)))
+
+(print (count-pairs n-3))
+(print (count-pairs n-4))
+(print (count-pairs n-7))
+(print (count-pairs n-never))
+
+** Exercise 3.18
+;; determin whether a list(flat list) contains a cycle
+
+(define (cycle? l)
+  (let ((visited '()))
+	(define (check x)
+	  (cond ((not (pair? x))
+			 false)
+			((memq x visited)
+			 true)
+			(else
+			 (set! visited (cons x visited))
+			 (check (cdr x)))))
+	(check l)))
+
+(print (cycle? '()))
+(print (cycle? '(1)))
+(print (cycle? '(1 2 3)))
+
+(print (cycle? (make-cycle '(1))))
+(print (cycle? (make-cycle '(1 2 3))))
+
+** Exercise 3.19
+(define (cycle-2? l)
+  (define (check slow fast)
+	(cond ((or (not (pair? slow))
+			   (not (pair? fast))
+			   (not (pair? (cdr fast))))
+		   false)
+		  ((eq? slow fast)
+		   true)
+		  (else
+		   (check (cdr slow) (cddr fast)))))
+  (if (not (pair? l))
+	  false
+	  (check l (cdr l))))
+
+
+(print (cycle-2? '()))
+(print (cycle-2? '(1)))
+(print (cycle-2? '(1 2 3)))
+
+(print (cycle-2? (make-cycle '(1))))
+(print (cycle-2? (make-cycle '(1 2))))
+(print (cycle-2? (make-cycle '(1 2 3))))
+(print (cycle-2? (make-cycle '(1 2 3 4))))
+
+** Exercise 3.20
+see pic.
+
+** Exercise 3.21
+The last pair of queue is pointed by two pointers: from the pair
+before it and from rear-ptr. So it will be printed twice.
+
+See Figure 3.21 from the textbook.
+
+///////////////////////////////////////////////
+(define (print-queue q)
+  (print (front-ptr q)))
+
+
+(define q1 (make-queue))
+(print-queue q1)
+(print-queue (insert-queue! q1 'a))
+(print-queue (insert-queue! q1 'b))
+(print-queue (delete-queue! q1))
+(print-queue (delete-queue! q1))
+
+** Exercise 3.22
+(define (make-queue)
+  (let ((front-ptr '())
+		(rear-ptr '()))
+
+	(define (empty-queue?) (null? front-ptr))
+
+	(define (front-queue)
+	  (if (empty-queue?)
+		  (error "FRONT called with an empty queue" queue)
+		  (car front-ptr)))
+
+	(define (insert-queue! item)
+	  (let ((new-pair (cons item '())))
+		(cond ((empty-queue?)
+			   (set! front-ptr new-pair)
+			   (set! rear-ptr new-pair)
+			   dispatch)
+			  (else
+			   (set-cdr! rear-ptr new-pair)
+			   (set! rear-ptr new-pair)
+			   dispatch)))) 
+
+	(define (delete-queue!)
+	  (cond ((empty-queue?)
+			 (error "DELETE! called with an empty queue" queue))
+			(else
+			 (set! front-ptr (cdr front-ptr))
+			 dispatch))) 
+
+	(define (print-queue)
+	  (print front-ptr))
+
+	(define (dispatch m)
+	  (cond ((eq? m 'empty-queue?) (empty-queue?))
+			((eq? m 'front-queue) (front-queue))
+			((eq? m 'insert-queue!) insert-queue!)
+			((eq? m 'delete-queue!) (delete-queue!))
+			((eq? m 'print-queue) (print-queue))
+			(else
+			 (error "Unknown request" m))))
+
+	dispatch))
+
+(define (empty-queue? queue)
+  (queue 'empty-queue?))
+
+(define (front-queue queue)
+  (queue 'front-queue))
+
+(define (insert-queue! queue item)
+  ((queue 'insert-queue!) item))
+
+(define (delete-queue! queue)
+  (queue 'delete-queue!))
+
+(define (print-queue queue)
+  (queue 'print-queue))
+
+(define q1 (make-queue))
+(print (empty-queue? q1))
+(print-queue q1)
+(print-queue (insert-queue! q1 1))
+(print (front-queue q1))
+(print (empty-queue? q1))
+(print-queue (insert-queue! q1 2))
+(print-queue (insert-queue! q1 3))
+(print-queue (insert-queue! q1 4))
+(print (empty-queue? q1))
+
+;;1
+(print-queue (delete-queue! q1))
+(print (front-queue q1))
+
+;;2
+(print-queue (delete-queue! q1))
+(print (front-queue q1))
+(print (empty-queue? q1))
+
+;;3
+(print-queue (delete-queue! q1))
+(print (front-queue q1))
+(print (empty-queue? q1))
+
+;; 4
+(print-queue (delete-queue! q1))
+(print (empty-queue? q1))
+
+** Exercise 3.23
+;; the form of each item: (data prev-ptr . next-ptr)
+
+;; helper functions
+(define (front-ptr dq) (car dq))
+(define (rear-ptr dq) (cdr dq))
+(define (set-front-ptr! dq item) (set-car! dq item))
+(define (set-rear-ptr! dq item) (set-cdr! dq item))
+
+(define (item-data item-ptr) (car item-ptr))
+(define (prev-ptr item-ptr) (cadr item-ptr))
+(define (next-ptr item-ptr) (cddr item-ptr))
+(define (set-prev-ptr! item-ptr prev-ptr) 
+  (set-car! (cdr item-ptr) prev-ptr))
+(define (set-next-ptr! item-ptr next-ptr) 
+  (set-cdr! (cdr item-ptr) next-ptr))
+
+
+;; another helper function, to avoid the interpreter print "cycle"
+
+(define (deque-value dq)
+  (define (rec ptr)
+	(if (null? ptr)
+		'()
+		(cons (item-data ptr)
+			  (rec (next-ptr ptr)))))
+  (rec (front-ptr dq)))
+
+;; deque interface
+(define (make-deque)
+  (cons '() '()))
+
+(define (empty-deque? dq)
+  (null? (front-ptr dq)))
+
+(define (front-deque dq)
+  (if (empty-deque? dq)
+	  (error "FRONT called with an empty deque" dq)
+	  (item-data (front-ptr dq))))
+
+(define (rear-deque dq)
+  (if (empty-deque? dq)
+	  (error "REAR called with an empty deque" dq)
+	  (item-data (rear-ptr dq))))
+
+(define (front-insert-deque! dq item)
+  (let ((new-pair (cons item (cons '() '()))))
+	(cond ((empty-deque? dq)
+		   (set-front-ptr! dq new-pair)
+		   (set-rear-ptr! dq new-pair)
+		   (deque-value dq)
+		   )
+		  (else
+		   (set-next-ptr! new-pair (front-ptr dq))
+		   (set-prev-ptr! (front-ptr dq) new-pair)
+		   (set-front-ptr! dq new-pair)
+		   (deque-value dq)))))
+
+(define (rear-insert-deque! dq item)
+  (let ((new-pair (cons item (cons '() '()))))
+	(cond ((empty-deque? dq)
+		   (set-front-ptr! dq new-pair)
+		   (set-rear-ptr! dq new-pair)
+		   (deque-value dq))
+		  (else
+		   (set-prev-ptr! new-pair (rear-ptr dq))
+		   (set-next-ptr! (rear-ptr dq) new-pair)
+		   (set-rear-ptr! dq new-pair)
+		   (deque-value dq)))))
+
+(define (front-delete-deque! dq)
+  (if (empty-deque? dq)
+	  (error "FRONT-DELETE called with an empty deque" dq)
+	  (let ((old-front (front-ptr dq))
+			(new-front (next-ptr (front-ptr dq))))
+		(set-front-ptr! dq new-front)
+		(set-next-ptr! old-front '())
+		(if (not (null? new-front))
+			(set-prev-ptr! new-front '())
+			(set-rear-ptr! dq new-front)) ;; empty
+		(deque-value dq))))
+		 
+
+
+(define (rear-delete-deque! dq)
+  (if (empty-deque? dq)
+	  (error "REAR-DELETE called with an empty deque" dq)
+	  (let ((old-rear (rear-ptr dq))
+			(new-rear (prev-ptr (rear-ptr dq))))
+		(set-rear-ptr! dq new-rear)
+		(if (not (null? new-rear))
+			(set-next-ptr! new-rear '())
+			(set-front-ptr! dq new-rear)) ;; empty
+		(set-prev-ptr! old-rear '())
+		(deque-value dq))))
+
+(define dq (make-deque))
+(print (empty-deque? dq))
+
+(print (front-insert-deque! dq 1))
+(print (empty-deque? dq))
+
+(print (rear-insert-deque! dq 2))
+(print (empty-deque? dq))
+
+(print (front-insert-deque! dq 3))
+(print (empty-deque? dq))
+
+(print (rear-insert-deque! dq 4))
+(print (empty-deque? dq))
+
+;;
+
+(print (front-delete-deque! dq))
+(print (empty-deque? dq))
+
+(print (rear-delete-deque! dq))
+(print (empty-deque? dq))
+
+;; (print (rear-delete-deque! dq))
+;; (print (empty-deque? dq))
+
+(print (front-delete-deque! dq))
+(print (empty-deque? dq))
+
+(print (rear-delete-deque! dq))
+(print (empty-deque? dq))
+
+** Exercise 3.24
+;; all we need to do is to change assoc to use same-key?
+(define (make-table same-key?)
+  (define (assoc key records)
+	(cond ((null? records) false)
+		  ((same-key? key (caar records)) (car records))
+		  (else (assoc key (cdr records)))))
+
+  (let ((local-table (list '*table*)))
+    (define (lookup key-1 key-2)
+      (let ((subtable (assoc key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (assoc key-2 (cdr subtable))))
+              (if record
+                  (cdr record)
+                  false))
+            false)))
+
+    (define (insert! key-1 key-2 value)
+      (let ((subtable (assoc key-1 (cdr local-table))))
+        (if subtable
+            (let ((record (assoc key-2 (cdr subtable))))
+              (if record
+                  (set-cdr! record value)
+                  (set-cdr! subtable
+                            (cons (cons key-2 value)
+                                  (cdr subtable)))))
+            (set-cdr! local-table
+                      (cons (list key-1
+                                  (cons key-2 value))
+                            (cdr local-table)))))
+      'ok)    
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation -- TABLE" m))))
+    dispatch))
+
+
+(define (same-key? k1 k2)
+  (< (abs (- k1 k2)) 1))
+(define operation-table (make-table same-key?))
+(define get (operation-table 'lookup-proc))
+(define put (operation-table 'insert-proc!))
+
+
+;; evil test
+(put 1.1 1.3 '1)
+(print (get 1 1))
+(print (get 0.5 0.5))
+
+** Exercise 3.25
+;; what we need is a new same-key-list? method
+(define (make-table same-key-list?)
+  ;; empty key-list get false
+  (define (assoc key-list records)
+	(define (iter key-list records)
+	  (cond ((null? records) false)
+			((same-key-list? key-list (caar records)) (car records))
+			(else (assoc key-list (cdr records)))))
+	(if (null? key-list)
+		false
+		(iter key-list records)))
+
+  (let ((local-table (list '*table*)))
+    (define (lookup key-list)
+      (let ((record (assoc key-list (cdr local-table))))
+		(if record
+			(cdr record)
+			false)))
+
+    (define (insert! key-list value)
+      (let ((record (assoc key-list (cdr local-table))))
+		(if record
+			(set-cdr! record value)
+			(set-cdr! local-table
+					  (cons (cons key-list value) 
+							(cdr local-table)))))
+      'ok)    
+
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation -- TABLE" m))))
+    dispatch))
+
+(define (make-list-compare same-key?)
+  (define (same-key-list? kl-1 kl-2)
+	(cond ((and (null? kl-1) (null? kl-2))
+		   true)
+		  ((or (not (= (length kl-1) (length kl-2)))
+			   (not (same-key? (car kl-1) (car kl-2))))
+		   false)
+		  (else (same-key-list? (cdr kl-1) (cdr kl-2)))))
+  same-key-list?)
+		
+(define operation-table (make-table (make-list-compare equal?)))
+(define get (operation-table 'lookup-proc))
+(define put (operation-table 'insert-proc!))
+
+;;;;;;;;;;;;;;;;;;;;;;
+(print (put '(1 2) '12))
+(print (put '(1) '1))
+(print (put '(2) '2))
+
+(print (get '(1 2)))
+(print (get '(1)))
+(print (get '(2)))
+(print (get '(1 2 3)))
+(print (get '()))
+
+** Exercise 3.26
+;; form of eath record: (key-list value left-tree-ptr right-tree-ptr)
+(define (get-key-list record-ptr) (car record-ptr))
+(define (get-val record-ptr) (cadr record-ptr))
+(define (get-left-ptr record-ptr) (caddr record-ptr))
+(define (get-right-ptr record-ptr) (cdddr record-ptr))
+
+;; (define (set-key-list! record-ptr key-list) 
+;;   (set-car! record-ptr key-list))
+(define (set-val! record-ptr val) 
+  (set-car! (cdr record-ptr) val))
+(define (set-left-ptr! record-ptr left-ptr)
+  (set-car! (cddr record-ptr) left-ptr))
+(define (set-right-ptr! record-ptr right-ptr)
+  (set-cdr! (cddr record-ptr) right-ptr))
+
+(define (make-table less-than? same?)
+  ;; empty key-list get false
+  (define (assoc key-list root-ptr)
+	(define (iter key-list root-ptr)
+	  (cond ((null? root-ptr)
+			 false)
+			((same? key-list (get-key-list root-ptr))
+			 root-ptr) ;; in case value itself is '() or false
+			((less-than? key-list (get-key-list root-ptr))
+			 (iter key-list (get-left-ptr root-ptr)))
+			(else
+			 (iter key-list (get-right-ptr root-ptr)))))
+	(if (null? key-list)
+		false
+		(iter key-list root-ptr)))
+
+  (let ((local-table '()))
+    (define (lookup key-list)
+      (let ((record (assoc key-list local-table)))
+		(if record
+			(get-val record)
+			false)))
+
+    (define (insert! key-list value)
+	  (let ((new-record (cons key-list (cons value (cons '() '())))))
+		(define (add-record parent cur)
+		  (cond ((null? cur) ;; can not be equal here
+				 (if (less-than? key-list (get-key-list parent))
+					 (set-left-ptr! parent new-record)
+					 (set-right-ptr! parent new-record)))
+				((same? key-list (get-key-list cur))
+				 (set-val! cur value))
+				((less-than? key-list (get-key-list cur))
+				 (add-record cur (get-left-ptr cur)))
+				(else
+				 (add-record cur (get-right-ptr cur)))))
+
+		(if (null? local-table)
+			(set! local-table new-record)
+			(add-record '() local-table)))
+	  (print local-table)
+      'ok)    
+
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation -- TABLE" m))))
+    dispatch))
+
+(define (list-same-fn-creator same-key?)
+  (define (same-key-list? kl-1 kl-2)
+	(cond ((and (null? kl-1) (null? kl-2))
+		   true)
+		  ((or (not (= (length kl-1) (length kl-2)))
+			   (not (same-key? (car kl-1) (car kl-2))))
+		   false)
+		  (else (same-key-list? (cdr kl-1) (cdr kl-2)))))
+  same-key-list?)
+
+(define (list-lessthan-fn-creator less?)
+  (define (list-less? l1 l2)
+	(cond ((and (null? l1) (null? l2))
+		   false) ;; equal case
+		  ((or (and (not (null? l2)) 
+					(null? l1))
+			   (and (not (null? l1)) 
+					(not (null? l2))
+					(less? (car l1) (car l2))))
+		   true) ;; less
+		  ((or (and (not (null? l1)) 
+					(null? l2))
+			   (and (not (null? l1)) 
+					(not (null? l2))
+					(less? (car l2) (car l1))))
+		   false) ;; greater
+		  (else 
+		   (list-less? (cdr l1) (cdr l2)))))
+  list-less?)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;	  
+(define lessthan-fn (list-lessthan-fn-creator <))
+(define same-fn (list-same-fn-creator =))
+(define operation-table (make-table lessthan-fn same-fn))
+(define get (operation-table 'lookup-proc))
+(define put (operation-table 'insert-proc!))
+
+;;;;;;;;;;;;;;;;;;;;;;
+(print (put '(1 2) '12))
+(print (put '(1) '1))
+(print (put '(2) '2))
+
+(define tr1 '((1 2) 12 ((1) 1 ()) (2) 2 ()))
+(print (get-val tr1))
+(print (get-left-ptr tr1))
+(print (get-right-ptr tr1))
+
+
+(print (put '(3) '3))
+(print (put '(5) '5))
+(print (put '(0 100) '0100))
+(print (put '(1 1) '11))
+(print (get '(1 2)))
+(print (get '(1)))
+(print (get '(2)))
+(print (get '(1 2 3)))
+(print (get '()))
+
+** Exercise 3.27
+1# 
+environment diagram: see pic.
+
+2#
+The reason: memo-fib compute just once for any Fibonacci numbers
+between 0...n. Therefor the total cost for computing memo-fib(n)
+is: memo-fib(n-1) + memo-fib(n-2) + ... + memo-fib(0). According
+to the code, when having the Fibonacci numbers for smaller values,
+the cost need to compute a new Fibonacci number is a constant. For
+example, when having results for 0 and 1, it is easy to compute the
+result for 2; then it is easy to compute the result for 3, and so on.
+
+3#
+This won't work. 
+The reason: fib will call it self recursively to compute a Fibonacci
+number. And fib is evaluated in an environment that has no "table".
+
+memo-fib is evaluated in an environment that has a "table", fib
+is NOT.
+
+To make the memoization work, the function must be evaluated 
+recursively in an environment that has the "table".
+
+The following is from:http://community.schemewiki.org/?sicp-ex-3.27
+Instead of recoding fib into memo-fib as shown in SICP (which seems
+like a very error-prone way of adding memoize to an existing
+function). The following works in DrRacket using #lang racket 
+
+(set! fib (memoize fib)) 
+
+It sets fib in the global environment to (memoize fib) which also
+causes the recursive calls within fib to call the redefined version. 
+
+** Exercise 3.28
+(define (or-gate a1 a2 output)
+  (define (or-action-procedure)
+	(let ((new-value (logical-or 
+					  (get-signal a1)
+					  (get-signal a2))))
+	  (after-delay or-gate-delay
+				   (lambda ()
+					 (set-signal! output new-value)))))
+  (add-action! a1 or-action-procedure)
+  (add-action! a2 or-action-procedure)
+  'ok)
+
+(define (is-signal-valid? s)
+  (if (or (= s 0) (= s 1))
+	  true
+	  false))
+
+(define (logical-or s1 s2)
+  (if (and (is-signal-valid? s1)
+		   (is-signal-valid? s2))
+	  (if (or (= s1 1) (= s2 1))
+		  1
+		  0)
+	  (error "Invalid singal" s1 s2)))
+
+;; test
+;; use procedures from digital-circuit-simulator.scm
+(define a1 (make-wire))
+(define a2 (make-wire))
+(define output (make-wire))
+
+(define the-agenda (make-agenda))
+(define or-gate-delay 5)
+
+(probe 'a1 a1)
+(probe 'a2 a2)
+(probe 'output output)
+
+(or-gate a1 a2 output)
+
+** Exercise 3.29
+;; a or b = not( (not a) and (not b))
+(define (or-gate a1 a2 output)
+  (let ((not-a1 (make-wire))
+		(not-a2 (make-wire))
+		(and-of-not (make-wire)))
+	(inverter a1 not-a1)
+	(inverter a2 not-a2)
+	(and-gate not-a1 not-a2 and-of-not)
+	(inverter and-of-not output)
+	'ok))
+
+(define (is-signal-valid? s)
+  (if (or (= s 0) (= s 1))
+	  true
+	  false))
+
+;; or-gate-delay = and-gate-delay + 2 * inverter-delay.
+
+;; test
+(define the-agenda (make-agenda))
+(define inverter-delay 2)
+(define and-gate-delay 3)
+
+(define x (make-wire))
+(define y (make-wire))
+(define z (make-wire))
+
+(probe 'x x)
+(probe 'y y)
+(probe 'z z)
+
+
+(or-gate x y z)
+(propagate) ;; execute the action added to agenda by or-gate(some
+;; of the action is actually wrong(at wrong time), 
+;; although the final result is correct)
+
+;; (probe 'x x)
+;; (probe 'y y)
+;; (probe 'z z)
+
+** Exercise 3.30
+(define (ripple-carry-adder A B S C)
+  (define (iter A B S C)
+	(let ((c-in (make-wire)))
+	  (if (null? (cdr A))
+		  (set-signal! c-in 0)
+		  (iter (cdr A) (cdr B) (cdr S) c-in))
+	  (full-adder (car A) (car B) c-in (car S) C)))
+  (if (and (> (length A) 0) 
+		   (= (length A) (length B))
+		   (= (length B) (length S)))
+	  (iter A B S C)
+	  (error "invald binary number" A B S)))
+
+;; test
+;; use procedures from digital-circuit-simulator.scm
+(define (make-wire-list n)
+  (if (= n 0)
+	  '()
+	  (cons (make-wire) (make-wire-list (- n 1)))))
+
+(define sig-0 (make-wire))
+(define sig-1 (make-wire))
+(set-signal! sig-1 1)
+
+(define A (list sig-1 sig-1 sig-0))
+(define B (list sig-0 sig-1 sig-1))
+(define S (make-wire-list 3))
+(define C (make-wire))
+
+(ripple-carry-adder A B S C)
+(propagate) ;; important!!!!
+
+(print (map get-signal S))
+(print (get-signal C))
+
+
+
+half-adder-s-delay =  
+max(or-gate-delay, and-gate-delay + inverter-delay) + and-gate-delay
+
+half-adder-c-delay = and-gate-delay
+
+full-adder-s-delay = 2 * half-adder-s-delay
+
+full-adder-c-delay = 
+half-adder-s-delay + half-adder-c-delay + or-gate-delay
+
+ripple-adder-s-delay = 
+(n - 1) * full-adder-c-delay + full-adder-s-delay
+= (n - 1) * (2 * and-gate-delay + or-gate-delay +
+			   max(or-gate-delay, and-gate-delay + invter-delay))
+  + 2 * (and-gate-delay + 
+		max(or-gate-delay, and-gate-delay + inverter-delay))
+
+=2n*and-gate-delay + (n-1)*or-gate-delay+
+ (n+1)*max(or-gate-delay, and-gate-delay + inverter-delay)
+
+ripple-adder-c-delay = n * full-adder-c-delay
+= n * ( 2 * and-gate-delay + or-gate-delay + 
+		  max(or-gate-delay, and-gate-delay + invter-delay))
+
+= 2n*and-gate-delay + n*or-gate-delay + 
+  n*max(or-gate-delay, and-gate-delay + inverter-delay)
+
+** Exercise 3.31
+The output will be: carry 11  New-value = 1
+
+This initialization will make a cirtuit in a correct initial state.
+Let's take the half-adder as an example(Figure 3.25), if we don't 
+call the added procedure when being added to a wire, the initial 
+signal on wire E will be zero, whose correct signal should be 1(when
+both A and B have signal 0). As the example shows, this will cause
+the half-adder produce wrong answer.
+
+In our particular simulator, the correct initial state is guaranteed
+by adding procedures to the agenda, which will be executed before
+all the later procedures get executed. This also gives the answer to
+exercise ex3.32.
+
+** Exercise 3.32
+The importance of order is explained by the previous paragraph.
+
+Example: 
+suppose the first input changes first: 0 1 --> 1 1 --> 1 0,
+remember that we compute the new value first, then after 
+and-gate-delay, we set the new value. So, 
+fifo: set output to (and 1 1) then set output to (and 1 0)
+lifo: set output to (and 1 0) then set output to (and 1 1)
+
+Apparently, the lifo gives wrong answer.
+
+** Exercise 3.33
+(define (averager a b c)
+  (let ((p (make-connector))
+		(h (make-connector)))
+	(adder a b p)
+	(multiplier p h c)
+	(constant 1/2 h)))
+
+;; test
+(define a (make-connector))
+(define b (make-connector))
+(define c (make-connector))
+
+(probe 'a a)
+(probe 'b b)
+(probe 'c c)
+
+(averager a b c)
+
+** Exercise 3.34
+This is one-directional, set the value of a will compute the value
+of b; but set the value of b will not compute the value of a, because
+there are two unknows(two a, which is indeed one, but the program
+interprete them as two unknowns).
+
+** Exercise 3.35
+(define (squarer a b)
+  (define (process-new-value)
+	(if (has-value? b)
+		(if (< (get-value b) 0)
+			(error "square less then 0 -- SQUARE" (get-value b))
+			(set-value! a (sqrt (get-value b)) me))
+		(if (has-value? a)
+			(set-value! b (square (get-value a)) me))))
+
+  (define (process-forget-value) 
+	(forget-value! a me)
+	(forget-value! b me)
+	(process-new-value))
+
+  (define (me request)
+	(cond ((eq? request 'I-have-a-value)
+		   (process-new-value))
+		  ((eq? request 'I-lost-my-value)
+		   (process-forget-value))
+		  (else
+		   (error "Unknown request -- SQUARE" request))))
+
+  (connect a me)
+  (connect b me)
+  me)
+	
+
+;; test
+(define a (make-connector))
+(define b (make-connector))
+
+(probe 'a a)
+(probe 'b b)
+
+(squarer a b)
+
+** Exercise 3.36
+see pic
+
+** Exercise 3.37
+(define (celsius-fahrenheit-converter x)
+  (c+ (c* (c/ (cv 9) (cv 5))
+          x)
+      (cv 32)))
+
+(define (c+ x y)
+  (let ((z (make-connector)))
+    (adder x y z)
+    z))
+
+;; x - y
+(define (c- x y)
+  (let ((z (make-connector)))
+	(adder y z x)
+	z))
+
+;; x * y
+(define (c* x y)
+  (let ((z (make-connector)))
+	(multiplier x y z)
+	z))
+
+;; x / y
+(define (c/ x y)
+  (let ((z (make-connector)))
+	(multiplier y z x)
+	z))
+
+;; constant x
+(define (cv value)
+  (let ((z (make-connector)))
+	(constant value z)
+	z))
+
+;; test
+(define C (make-connector))
+(define F (celsius-fahrenheit-converter C))
+
+(probe 'C C)
+(probe 'F F)
+
+* 3.4 Concurrency: Time Is of the Essense
+
+** Exercise 3.38
+a.
+Peter -> Paul -> Mary: 45
+Paul -> Peter -> Mary: 45
+Peter -> Mary -> Paul: 35
+Paul -> Mary -> Peter: 50
+Mary -> Peter -> Paul: 40
+Mary -> Paul -> Peter: 40
+
+b.
+Just one example, let's just ignore Paul(sorry): 
+>1: Peter read the balane 100, then Marry read the accout 100, then 
+    case 1: Peter set balance to 110, then Marry set it to 50
+    case 2: Marry set balance to 50, then Peter set it to 110
+
+If we add Paul in, there will be more cases(mess).
+
+** Exercise 3.39
+101
+121
+100
+
+** Exercise 3.40
+1000000: p1 set x to 100, then p2; or p2 set x to 1000, then p1
+100: both access x as 10, p1 set x last
+1000: both access x as 10, p2 set x last
+100000: p1 set x to 100, p2 access first x as 10, second and third as 100
+10000: p1 set x to 100, p2 access frist and second x as 10, third as 100;
+       or p2 set x to 1000, p1 access first x as 10, second as 1000
+
+If we use serialized procedures, the only possibility remained is: 1000000
+
+** Exercise 3.41
+Unserialized access to the bank balance may read "old" data, but the data is
+consistent. So I don't think this is necessary.
+
+This situation is similar to the case of r/w in OS, where there is no need to
+serialize the reading operation. Actually serialization in the read case will
+make the efficiency of the system drop(may be a lot).
+
+** Exercise 3.42
+It is safe.
+I think they are the same.
+
+the following is from: http://eli.thegreenplace.net/2007/10/26/sicp-334/
+The reason for this is that the real work of the serializer is done in
+the call to protected procedures, and not in their creation. In their
+creation the function serialized-p is created and returned, and only
+when it’s called it waits on the mutex. 
+
+** Exercise 3.43
+1#
+With serialization on individual accounts:
+suppose: 
+a1: $10 
+a2: $20
+a3: $30
+
+exchange: a1 and a2, and a2 and a3
+
+sequence of event:
+>1 read a1 as 10 and a2 as 20 and compute difference as: -10
+>2 read a2 as 20 and a3 as 30 and compute difference as: -10
+>3 set a2 to 30 and a3 to 20
+>4 set a1 to 20 and a2 to 20
+
+So, 
+a1: 20
+a2: 20
+a3: 20
+
+The reason of preserved sum of balances: because withdraw and deposit
+are serialized, there exist only one consistent version of
+balance. And the difference will be added to and subtracted from the
+balances evenly, so the sum of balance will preserve.
+
+2# no serialization at all:
+sequence of event:
+>1 read a1 as 10 and a2 as 20 and compute difference as: -10
+>2 set a1 to 20 and a2 to 10, at the same time, read a2 as 20 and a3 as 30 and compute difference as: -10
+>3 set a2 to 30 and a3 to 20
+
+So, 
+a1: 20
+a2: 30
+a3: 20
+
+** Exercise 3.44
+I don't think Louis is right. Because withdraw and deposit are
+serialized, all processes that access a particular account will access
+this account sequentially, this can guarantee the final result is
+correct. 
+
+the following is from:http://eli.thegreenplace.net/2007/10/26/sicp-334/
+There is an essential difference between the transfer problem and the
+exchange problem, and it is the lack of computation of difference,
+which may examine some intermediate state of the balance which no
+longer reflects reality if exchange is switched out and in between the
+computation of the difference and the account operations. 
+
+** Exercise 3.45
+Dead lock occurs. Let's what happens when (serialized-exchange account1 account2)
+is executed, first the exchange procedure will get the lock of account1 and account2,
+then "((account1 'withdraw) difference)" will try to get the lock of account1. Dead lock
+occurs.
+
+(maybe this is not deadlock, deadlock usually involves multiple processes, this situation here
+just involve one process.)
+
+** Exercise 3.46
+Suppose there are two processes p1 and p2 trying to acquire a mutex m.
+
+Sequence of events:
+>1 p1 accesses m as false, at the same time p2 also accesses m as false
+>2 p1 set m to true
+>3 p2 set m to true
+
+So, both p1 and p2 will proceed as if they are the only one that are accessing
+the resource protected by m.
+
+** Exercise 3.47
+(define (make-semaphore n)
+  (let ((mutex (make-mutex))
+		(counter n))
+	(define (the-semaphore m)
+	  (cond ((eq? m 'acquire)
+			 (mutex 'acauire)
+			 (if (> counter 0)
+				 (begin (set! counter (- counter 1))
+						(mutex 'release))
+				 (begin (mutex 'release)
+						(the-semaphore 'acquire)))) ;; attention here
+			((eq? m 'release)
+			 (mutex 'acquire)
+			 (if (< counter n)
+				 (set! counter (+ counter 1)))
+			 (mutex 'release))
+			(else (error "unknown request--" m))))
+	the-semaphore))
+			 
+
+(define (make-semaphore2 n)
+  (let ((counter n)
+		(cell (list false)))
+
+	(define (acquire-cell)
+	  (if (test-and-set! cell)
+		  (acquire-cell)))
+
+	(define (the-semaphore m)
+	  (cond ((eq? m 'acquire)
+			 (acquire-cell)
+			 (if (> counter 0)
+				 (begin (set! counter (- counter 1))
+						(clear! cell))
+				 (begin (clear! cell)
+						(the-semaphore 'acquire))))
+			((eq? m 'release)
+			 (acquire-cell)
+			 (if (< counter n)
+				 (set! counter (+ counter 1)))
+			 (clear! cell))
+			(else (error "unknown request--" m))))
+	the-semaphore))
+				 
+** Exercise 3.48
+The reason: First, let try to understand why deadlock occurs in this situation. 
+Deadlock occurs on two conditions: 1. One procedure needs two(specific here) locks.
+2. A procedure that has acquired one lock and trying to get another one, which has 
+acquired by another procedure. And this another procedure is trying to acquire the 
+lock acquired by "A procedure".
+
+To avoid deadlock, we just need to avoid any of the above two conditions. By 
+definition, the procedure needs two locks, so the first condition can not be avoided.
+But with numbering the accounts, the second condition will never occur, for if a procedure
+that has not acquired a smaller number account could not get a larger number account, it
+has to wait until the smaller number account released, then proceed. 
+
+The only waiting that are possible is: a procedure has acquired a smaller number account
+and waiting for a larger number account. A procedure has acquired a larger number account
+will never wait for a smaller number account. No cycle waiting, no deadlock.
+
+(define (make-account balance)
+
+  (define (make-numbered-account number balance)
+	(define (withdraw amount)
+	  (if (>= balance amount)
+		  (begin (set! balance (- balance amount))
+				 balance)
+		  "Insufficient funds"))
+
+	(define (deposit amount)
+	  (set! balance (+ balance amount))
+	  balance)
+
+	(let ((protected (make-serializer)))
+	  (define (dispatch m)
+		(cond ((eq? m 'withdraw) (protected withdraw))
+			  ((eq? m 'deposit) (protected deposit))
+			  ((eq? m 'balance) balance)
+			  ((eq? m 'serializer) protected)
+			  ((eq? m 'number) number)
+			  (else (error "unknown request -- MAKE-ACCOUNT" m))))
+	  dispatch))
+
+  (let ((base -1)
+		(mutex (make-mutex)))
+	(mutex 'acquire)
+	(set! base (+ base 1))
+	(let ((new-account (make-numbered-account base balance)))
+	  (mutex 'release)
+	  new-account)))
+
+(define (serialized-exchange account1 account2)
+  (let ((serializer1 (account1 'serializer))
+		(serializer2 (account2 'serializer))
+		(num1 (account1 'number))
+		(num2 (account2 'number)))
+	(if (> num1 num2)
+		((serializer1 (serializer2 exchange))
+		 account1
+		 account2)
+		((serializer2 (serializer1 exchange))
+		 account1
+		 account2))))
+
+;; I think this version will try to lock the higher-numbered account
+;; first, although most answers from the web use this version. Here, by
+;; lock I mean mutex. However, the textbook says:"always attempt to enter
+;; procedure protecting the lowest-numbered account first", if this means
+;; calling serializer first, then this version is correct.
+
+;; Whatever the order is, this method will prevent deadlock provided that
+;; the order is exercised consistently. 
+
+** Exercise 3.49
+As the hint says, if we can't predict the shared resources a process will access, then 
+there are two cases:
+1> the unpredictable resources are not numbered, deadlock may happens.
+2> we numbered all resources in the system, then deadlock will not happen, but numbering 
+all resources in a system is not realistic and will hurt performance a lot.
+
+Answer from: http://git.wizardbook.org/wizardbook/tree/3.4.2/3.49.scm
+;; To exchange accounts from foreign banks which each use their own
+;; indexer would evade the lowest-index-first deadlock-avoidance.

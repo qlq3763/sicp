@@ -1,0 +1,2554 @@
+* 2.1 Introduction to Data Abstraction
+** Exercise 2.1
+(define (make-rat n d)
+  (if (> d 0)
+      (cons n d)
+      (cons (- n) (- d))))
+
+** Exercise 2.2
+(define (make-point x y)
+  (cons x y))
+
+(define (x-point p)
+  (car p))
+
+(define (y-point p)
+  (cdr p))
+
+(define (make-segment p-s p-e)
+  (cons p-s p-e))
+
+(define (start-segment s)
+  (car s))
+
+(define (end-segment s)
+  (cdr s))
+
+(define (midpoint-segment s)
+  (let ((p-s (start-segment s))
+	(p-e (end-segment s)))
+    (make-point (average (x-point p-s)
+			 (x-point p-e))
+		(average (y-point p-s)
+			 (y-point p-e)))))
+
+** Exercise 2.3
+one:***************************************************
+;; p-m .--------. p-s
+;;     |
+;;     |
+;;     |
+;; p-e .
+(define (make-rectangle p-s p-m p-e)
+  (cons p-s (cons p-m p-e)))
+
+(define (p-s r)
+  (car r))
+
+(define (p-m r)
+  (cadr r))
+
+(define (p-e r)
+  (cddr r))
+
+two:****************************************************
+;;    ------------. c1
+;;    |
+;;    |
+;;    |
+;; c2 .
+(define (make-rectangle c1 c2)
+  (cons c1 c2))
+
+(define (p-s r)
+  (car r))
+
+(define (p-e r)
+  (cdr r))
+
+(define (p-m r)
+  (make-point (x-point (p-e r))
+	      (y-point (p-s r))))
+
+************************************************************
+
+(define (height-rectangle r)
+  (let ((ps (p-s r))
+	(pm (p-m r)))
+    (sqrt (+ (square (- (x-point ps) (x-point pm)))
+	     (square (- (y-point ps) (y-point pm)))))))
+
+(define (width-rectangle r)
+  (let ((pm (p-m r))
+	(pe (p-e r)))
+    (sqrt (+ (square (- (x-point pm) (x-point pe)))
+	     (square (- (y-point pm) (y-point pe)))))))
+
+(define (perimeter-rectangle r)
+  (* 2 (+ (width-rectangle r) (height-rectangle r))))
+
+(define (area-rectangle r)
+  (* (width-rectangle r) (height-rectangle r)))
+
+** Exercise 2.4
+(define (my-cdr z)
+  (z (lambda (p q) q)))
+
+** Exercise 2.5
+From number theory: any number can and only can be represented as
+m1^a1 * m1^a2 *...*mn^an, where m1...mn are primes and a1...an are
+integers. And 2 and 3 are primes, so the product of exponentials of
+2^a and 3^b is unique and a and be can be retrieved back because of
+the property of prime. 
+
+(define (my-cons a b)
+  (* (fast-expt-iter 2 a)
+     (fast-expt-iter 3 b)))
+
+(define (my-car z)
+  (if (= (remainder z 2) 0)
+      (+ 1 (my-car (/ z 2)))
+      0))
+
+(define (my-cdr z)
+  (if (= (remainder z 3) 0)
+      (+ 1 (my-cdr (/ z 3)))
+      0))
+
+** Exercise 2.6
+(define one (lambda (f) (lambda (x) (f x))))
+
+(define two (lambda (f) (lambda (x) (f (f x)))))
+
+(define (add m n)
+  (lambda (f) 
+    (lambda (x) ((m f) ((n f) x)))))
+
+The following is the first version I wrote, a wrong version:
+(define (add m n)
+  (lambda (f) 
+    (lambda (x) ((m (n f)) x))))
+
+First, I will take the number two as an example to explain what does a
+number mean is this exercise. Firstly, a number is a function, recall
+that from chapter one that (define (fun-name parameter)) is just a
+syntax sugar for (define fun-name (lambda (parameter))). So, two can
+be also defined as (define (two f) (lambda (x) ....)). Now that it is
+clear that a number means a function that takes one argument, which
+itself is a function taking one argument. The return value of this
+number function becomes easy to understand, it returns a function
+taking one argument. 
+
+Second, the "number" means how many times the argument function will
+be applied. 
+
+Third, now it is should be easy to see where is wrong about the first
+version written. What this wrong version does is, applying f n times
+then applying (n f) m times instead of applying f m times, this is the
+behavior a multiply should make. 
+
+** Exercise 2.7
+(define (make-interval lower upper)
+  (cons lower upper))
+
+(define (lower-bound i)
+  (car i))
+
+(define (upper-bound i)
+  (cdr i))
+
+** Exercise 2.8
+;; Try to cover the largest interval possible.
+(define (sub-interval a b)
+  (make-interval (- (lower-bound a)
+		    (upper-bound b))
+		 (- (upper-bound a)
+		    (lower-bound b))))
+
+** Exercise 2.9
+Let take two intervals i-1 and i-2 as examples to illustrate these
+ideas. Let i-1 be (x1 y1) and i-2 be (x2 y2). And the widths of i-1 and
+i-2 are w1 = (y1 - x1)/2 and w2 = (y2 - x2)/2 respectively. The widths
+of the sum and difference of i-1 and i-2 are 
+w-s = ((y1 - x1) + (y2 - x2))/2 = w1 + w2 and w-d = w-s respectively. So
+the width of sum or differentiate of two intervals is the sum of the
+two intervals' widths.
+
+Width multiply, let's assume x1, x2, y1, y2 are all greater than
+zero, then the product of i-1 and i-2 is i-p = (x1x2, y1y2) and the
+width of i-p is w-p = (y1y2 - x1x2)/2, which can't be represented by w1
+and w2.
+
+** Exercise 2.10
+(define (div-interval x y)
+  (if (and (<= (lower-bound y) 0)
+	   (>= (upper-bound y) 0))
+      false
+  (mul-interval x 
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y))))))
+
+** Exercise 2.11
+;; x:(x1 x2)
+;; y:(y1 y2)
+;; 1 # x1 >= 0, x2 >= 0, y1 >= 0, y2 >= 0 -> (x1y1, x2y2)
+;; 2 # x1 >= 0, x2 >= 0, y1 >= 0, y2 <= 0 -> Impossible
+;; 3 # x1 >= 0, x2 >= 0, y1 <= 0, y2 >= 0 -> (x2y1, x2y2)
+;; 4 # x1 >= 0, x2 >= 0, y1 <= 0, y2 <= 0 -> (x2y1, x1y2)
+;; 5 # x1 >= 0, x2 <= 0, y1 >= 0, y2 >= 0 -> Impossible
+;; 6 # x1 >= 0, x2 <= 0, y1 >= 0, y2 <= 0 -> Impossible
+;; 7 # x1 >= 0, x2 <= 0, y1 <= 0, y2 >= 0 -> Impossible
+;; 8 # x1 >= 0, x2 <= 0, y1 <= 0, y2 <= 0 -> Impossible
+;; 9 # x1 <= 0, x2 >= 0, y1 >= 0, y2 >= 0 -> (x1y2, x2y2)
+;; 10# x1 <= 0, x2 >= 0, y1 <= 0, y2 >= 0 -> Impossible
+;; 11# x1 <= 0, x2 >= 0, y1 <= 0, y2 >= 0 -> (min(x1y2, x2y1), max(x1y1, x2y2))
+;; 12# x1 <= 0, x2 >= 0, y1 <= 0, y2 <= 0 -> (x2y1, x1y1)
+;; 13# x1 <= 0, x2 <= 0, y1 >= 0, y2 >= 0 -> (x1y2, x2y1)
+;; 14# x1 <= 0, x2 <= 0, y1 >= 0, y2 <= 0 -> Impossible
+;; 15# x1 <= 0, x2 <= 0, y1 <= 0, y2 >= 0 -> (x1y2, x1y1)
+;; 16# x1 <= 0, x2 <= 0, y1 <= 0, y2 <= 0 -> (x2y2, x1y1)
+
+(define (improved-mul-interval x y)
+  (let ((x1 (lower-bound x))
+	 (x2 (upper-bound x))
+	 (y1 (lower-bound y))
+	 (y2 (upper-bound y)))
+     (define (cond-p op-1 op-2 op-3 op-4)
+       (and (op-1 x1 0) (op-2 x2 0) (op-3 y1 0) (op-4 y2 0)))
+     (define (cond-b a b c d)
+       (make-interval (* a b) (* c d)))
+     (cond ((cond-p >= >= >= >=) ;1 #
+	    (cond-b x1 y1 x2 y2))
+	   ((cond-p >= >= <= >=) ;3 #
+	    (cond-b x2 y1 x2 y2))
+	   ((cond-p >= >= <= <=) ;4 #
+	    (cond-b x2 y1 x1 y2))
+	   ((cond-p <= >= >= >=) ;9 #
+	    (cond-b x1 y2 x2 y2))
+	   ((cond-p <= >= <= >=) ;11#
+	    (make-interval (min (* x1 y2) (* x2 y1))
+			   (max (* x1 y1) (* x2 y2))))
+	   ((cond-p <= >= <= <=) ;12#
+	    (cond-b x2 y1 x1 y1))
+	   ((cond-p <= <= >= >=) ;13#
+	    (cond-b x1 y2 x2 y1))
+	   ((cond-p <= <= <= >=) ;15#
+	    (cond-b x1 y2 x1 y1))
+	   ((cond-p <= <= <= <=) ;16#
+	    (cond-b x2 y2 x1 y1))
+	   (else (display "illegal interval")))))
+
+** Exercise 2.12
+(define (make-center-percent c p)
+  (make-center-width c (/ (* c p) 100.0)))
+
+(define (percent i)
+  (/ (* (width i) 100.0) (center i)))
+
+** Exercise 2.13
+Not the 100 in percent meaning into consideration.
+Suppose x:(x, p) = (x-xp1, x+xp1), y:(y, p)= (y-yp2, y+yp2) and x-xp1,
+x+xp1, y-yp2 and y+yp2 are all greater than zero. Then 
+p = x * y = (xy(1 - p1)(1 - p2), xy(1 + p1)(1 + p2)), and percentage
+tolerance of p is 
+tp = (p1+p2)/(1+p1p2), 
+because p1 and p2 are small, so we can ignore p1p2, which is
+smaller. So, after this simplification 
+tp = p1 + p2.
+
+** Exercise 2.14
+;; Let r1=(c1-c1p1,c1+c1p1), r2=(c2-c2p2,c2+c2p2), and it is not 
+;; difficult to get rs1=(par1 r1 r2)=( (c1c2(1-p1)(1-p2))/(c1(1+p1)+c2(1+p2)),
+;; (c1c2(1+p1)(1+p2))/(c1(1-p1)+c2(1-p2)) ) and
+;; rs2=(par2 r1 r2)= ( (c1c2(1-p1)(1-p2))/(c1(1-p1)+c2(1-p2)), (c1c2(1+p1)(1+p2))/(c1(1+p1)+c2(1+p2)))
+;; Now, it is obviously that rs1 is not equal to rs2.
+
+;; See those webpages for furthur explanation:
+;; http://eli.thegreenplace.net/2007/07/27/sicp-section-214/
+;; http://wqzhang.wordpress.com/2009/06/18/sicp-exercise-2-14/
+
+** Exercise 2.15
+First, par2 dose produce a tighter error bound than par1 does. 
+Second, I think she is right. The reason is that in interval
+computing, repeating a variable in a formula means repeating a error
+tolerance. Let's take par1 and par2 as examples to illustrate this. In
+par1, variable r1 and r2 both appeared twice, this means the error
+tolerances of r1 and r2 are taken into consideration twice, while in
+par2 both variable appeared only once, so par2 does not duplicate the
+error tolerances of r1 and r2. One thing deserves notation is that the
+variable one in par2 didn't introduce and error tolerance, and you
+can't achieve this by dividing A by A, where A is an interval(with
+error tolerance). This means you can not transform formula one to
+formula two by dividing both divisor and dividend with r1r2, this
+transformation is true in mathematics, but not in our interval
+computations.
+
+** Exercise 2.16
+I think the fundamental reason for those discrepancy is that intervals
+are not exact numbers, which we are familiar with and which we apply
+the "normal" arithmetic operator such +,-,*,/ with. And the exact
+numbers have properties that we take for granted, but which is not
+true about intervals. 
+Let's just say some of the properties that are always true about exact
+numbers, but which are not always true about intervals.
+Let a and b are two exact numbers, and i-1 and i-2 two intervals.
+
+1# (a+b)- b = a is always true,
+but (i-1 + i-2) - i-2 is not always equal to i-1
+
+2# a - a = 0
+and i-1 - i-1 is not always equal to (0, 0)
+
+Just show some concrete examples.
+Next I want to check all the basic properties about exact numbers to
+see which is also true about intervals:
+1# a + b = b + a. both true, I think.
+2# ab = ba. both true.
+3# a + (b + c) = (a + b) + c. both true.
+4# (ab)c = a(bc). both true.
+5# a(b+c) = ab + ac. not both true.
+
+;; http://eli.thegreenplace.net/2007/07/27/sicp-section-214/
+;; http://wqzhang.wordpress.com/2009/06/18/sicp-exercise-2-16/
+
+** Exercise 2.17
+Two way to solve this problem: 
+one: keep all information need--a car and cdr of a list and check the
+cdr part
+
+two: check if the list is a one-element-list, then take corresponding
+behavior based on this check result.
+one******************************
+
+(define (last-pair l)
+  (define (last-element e l)
+    (if (null? l)
+	e
+	(last-element (car l) (cdr l))))
+  (if (null? l)
+      (display "empty list")
+      (last-element (car l) (cdr l))))
+
+two**********************************
+(define (last-pair-2 l)
+  (define (one-element-list? l)
+    (null? (cdr l)))
+  (if (one-element-list? l)
+      (car l)
+      (last-pair-2 (cdr l))))
+
+** Exercise 2.18
+(define (my-reverse l)
+  (if (null? l)
+      l
+      (append (my-reverse (cdr l))
+	      (list (car l)))))
+
+** Exercise 2.19
+(define (first-denomination l)
+  (car l))
+
+(define (except-first-denomination l)
+  (cdr l))
+
+(define (no-more? l)
+  (null? l))
+
+The order of the list coin-values dose not affect the answer produced
+by cc. The reason is that all the values in the list will give the
+chance to contribute to the amount, no matter where its position in
+the list. 
+
+** Exercise 2.20
+one*******************************
+(define (same-parity . l)
+  (define (test-rem-append rem element l)
+    (if (= (remainder element 2) rem)
+	(append l (list element))
+	l))
+
+  (define (parity-even-odd-list rem l rst)
+    (if (null? l)
+	rst
+	(parity-even-odd-list rem 
+			      (cdr l) 
+			      (test-rem-append rem (car l) rst))))
+
+  (if (null? l)
+      l
+      (parity-even-odd-list (remainder (car l) 2)
+			    l
+			    '())))
+
+two**************************************************
+(define (same-parity-2 x . l)
+  (define (inner x l)
+    (let ((rem (remainder x 2)))
+      (cond ((null? l)
+	     l)
+	    ((= (remainder (car l) 2) rem)
+	     (cons (car l) (inner x (cdr l))))
+	    (else (inner x (cdr l))))))
+  (cons x (inner x l)))
+
+** Exercise 2.21
+(define (square-list items)
+  (if (null? items)
+      '()
+      (cons (square (car items))
+	    (square-list (cdr items)))))
+
+(define (square-list-2 items)
+  (map square items))
+
+** Exercise 2.22
+I think an example can make all these things clear. Suppose we have a
+list l:(1 2 3 4). 
+Now let's start with the first version, I just show the value of
+variable answer at each step:
+() ->
+(1) ->
+(4 1) -> yes, cons works this way
+(9 4 1) ->
+(16 9 4 1) -> done.
+By using cons, the newly computed square is add to the head of list,
+so this procedure will produce a reverse order of square.
+
+The second version:
+() ->
+(() . 1) ->
+((() . 1) . 4) ->
+(((() . 1) . 4) . 9) ->
+((((() . 1) . 4) . 9) . 16) -> done.
+Well, this is kind of a mess, but this is how cons works.
+
+(define (square-list-iter items)
+  (define (iter things answer)
+    (if (null? things)
+	answer
+	(iter (cdr things)
+	      (append answer (list (square (car things)))))))
+  (iter items '()))
+
+** Exercise 2.23
+(define (for-each proc items)
+  (cond ((not (null? items))
+	 (proc (car items))
+	 (for-each proc (cdr items)))))
+
+** Exercise 2.24
+printed result: l-4 = (1 (2 (3 4)))
+When drawing the box-and-pointer structure, it is worth noting that
+(cdr l-4) = ((2 (3 4))), instead of (2 (3 4)). I made this mistake
+when drew this structure.
+
+** Exercise 2.25
+(newline)
+(display (cadr (caddr '(1 3 (5 7) 9))))
+
+(newline)
+(display (caar '((7))))
+
+(newline)
+(display (cadr (cadr (cadr (cadr (cadr (cadr '(1 (2 (3 (4 (5 (6 7)))))))))))))
+
+** Exercise 2.26
+(append x y) -> (1 2 3 4 5 6)
+(cons x y) -> ((1 2 3) 4 5 6)
+(list x y) -> ((1 2 3) (4 5 6))
+
+** Exercise 2.27
+(define (my-deep-reverse l)
+    (cond ((null? l)
+	 l)
+	((not (pair? (car l)))
+	 (append (my-deep-reverse (cdr l))
+		 (list (car l))))
+	(else (append (my-deep-reverse (cdr l))
+		      (list (my-deep-reverse (car l)))))))
+
+(define (my-deep-reverse-2 l)
+  (if (not (pair? l))
+      l
+      (append (my-deep-reverse-2 (cdr l))
+	      (list (my-deep-reverse-2 (car l))))))
+
+** Exercise 2.28
+(define (fringe l)
+  (cond ((null? l)
+	 l)
+	((not (pair? l))
+	 (list l))
+	(else (append (fringe (car l))
+		(fringe (cdr l))))))
+
+compare this implementation with the one from
+ex2.27--my-deep-reverse-2, think about a question: where does the
+operator "list" should be put? I ex2.27, the "list" is put at the last
+part, however, here, "list" is put at the "not pair?" part. The
+reason, I think, is that here I just want to construct a plain list,
+while in ex2.27 what I want to construct is a list of list(maybe). 
+
+The other thing to mention to remind myself is that only the car can
+get reduce a list to a rare element, cdr can not achieve this, it can
+only get nil. I think this is kind of the reason that why
+ex2.27-my-deep-reverse-2 works, for the operator "list" is added to
+the car-part.
+
+** Exercise 2.29
+;; a.
+(define (left-branch m)
+  (car m))
+
+(define (right-branch m)
+  (cadr m))
+
+(define (branch-length b)
+  (car b))
+
+(define (branch-structure b)
+  (cadr b))
+
+;; b.
+(define (total-weight m)
+  (cond ((null? m)
+	 0)
+	((not (pair? m))
+	 m)
+	(else (+ (total-weight (branch-structure (left-branch m)))
+		 (total-weight (branch-structure (right-branch m)))))))
+
+;; c. how to define local variables depending on local variables????
+(define (mobile-balanced? m)
+  (define (balanced? l r)
+    (let ((l-l (branch-length l))
+	  (l-w (total-weight (branch-structure l)))
+	  (r-l (branch-length r))
+	  (r-w (total-weight (branch-structure r))))
+      (= (* l-l l-w) (* r-l r-w))))
+
+  (cond ((not (pair? m))
+	 true)
+	((balanced? (left-branch m) (right-branch m))
+	 (and (mobile-balanced? (branch-structure (left-branch m)))
+	      (mobile-balanced? (branch-structure (right-branch m)))))
+	(else false)))
+	 
+;; d.
+;; The selectors need to change.
+(define (make-mobile left right)
+  (cons left right))
+
+(define (make-branch length structure)
+  (cons length structure))
+
+(define (right-branch m)
+  (cdr m))
+
+(define (branch-structure b)
+  (cdr b))
+
+** Exercise 2.30
+(define (square-tree t)
+  (cond ((null? t)
+	 t)
+	((not (pair? t))
+	 (square t))
+	(else (cons (square-tree (car t))
+		    (square-tree (cdr t))))))
+
+;; get used to this inner calling outter recursion
+(define (square-tree-2 t)
+  (map (lambda (sub-tree)
+	 (if (pair? sub-tree)
+	     (square-tree-2 sub-tree)
+	     (square sub-tree)))
+       t))
+
+** Exercise 2.31
+;; use map, which takes care of the cons or append, 
+;; or whatever.
+(define (tree-map proc tree)
+  (map (lambda (sub-tree) 
+	 (if (pair? sub-tree)
+	     (tree-map proc sub-tree)
+	     (proc sub-tree)))
+       tree))
+
+** Exercise 2.32
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+	(append rest (map (lambda (subset)
+			    (cons (car s) subset))
+			  rest)))))
+
+Why it works? First, rest is the subsets of s', which is s with out
+the first element. Now the question is that given the subsets of s',
+how could we get the subsets of s. Yeah, by adding every subset of s'
+with the first element of s, we get, let's say rest', then put rest
+and rest' will give an answer. The the reason that this is correct is
+simple: all subsets of s is composed of two kinds of subsets--those
+having the first element and those not having. So putting the two kinds
+of subsets together, which the code does, gives the whole subsets of a
+set s.
+
+** Exercise 2.33
+(define (my-map p sequence)
+  (accumulate (lambda (x y) (cons (p x) y))
+	      '()
+	      sequence))
+
+(define (my-append seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (my-length sequence)
+  (accumulate (lambda (x y)
+		(+ y 1))
+	      0 
+	      sequence))
+
+** Exercise 2.34
+;; wow, perfect use of accumulate
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms)
+		(+ this-coeff 
+		   (* x higher-terms)))
+	      0
+	      coefficient-sequence))
+
+** Exercise 2.35
+;; can not understand why this version works this way: 
+;; given as parameter '((1 2 3 4)), will return '((1 2 3 4)) 
+;; instead of '((1 1 1 1)). But one really need attention of
+;; myself is that: map does not change the struture of a list.
+(define (count-leaves-2 t)
+  (accumulate + 
+	      0
+	      (map (lambda (sub-tree)
+		     (cond ((null? sub-tree)
+			    0)
+			   ((not (pair? sub-tree))
+			    1)
+			   (else count-leaves sub-tree)))
+		   t)))
+
+;; improved and really stupid mistakes
+(define (count-leaves-2 t)
+  (accumulate + 
+	      0
+	      (map (lambda (sub-tree)
+		     (cond ((null? sub-tree)
+			    0)
+			   ((not (pair? sub-tree))
+			    1)
+			   (else (count-leaves sub-tree)))) ; add ( here
+		   t)))
+;; still can not get things right this time
+;; (define (count-leaves t)
+;;   ;; (accumulate (lambda (x y) (+ x y))
+;;   ;; 	      0
+;; 	      (map (lambda (sub-tree)
+;; 		     (cond ((null? sub-tree)
+;; 			    0)
+;; 			   ((not (pair? sub-tree))
+;; 			    1)
+			   
+;; 		   t))
+
+(define (count-leaves t)
+  (accumulate +
+	      0
+	      (map (lambda (sub-tree)
+		     (if (not (pair? sub-tree))
+			 1
+			 (count-leaves sub-tree)))
+		   t)))
+
+I spent almost two hours on a misk--omitting a "(", don't do this
+again. 
+
+** Exercise 2.36
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (map car seqs))
+	    (accumulate-n op init (map cdr seqs)))))
+
+** Exercise 2.37
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (sub-vec) (dot-product sub-vec v))
+       m))
+
+(define (transpose mat)
+  (accumulate-n cons 
+		'()
+		mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (sub-vec) (matrix-*-vector cols sub-vec)) 
+	 m)))
+
+Wow, see step by step using the procedure defined at previous step and
+high-order procedure and sequence operation, the work needed to do at
+each stage is simple. That the way of programming, in my ideal mind,
+should be: simple, beautiful and effective.
+Please learn from these!!!!
+
+The difference between map and accumulate is that: accumulate give you
+more control over operator and initial value, see ex2.33 for how map
+can be implemented using accumulate.
+
+** Exercise 2.38
+I will use the substitution model to illustrate the execution process.
+
+(print (fold-right / 1 (list 1 2 3))) ->
+(1 / (f-r (2 3))) ->
+(1 / (2 / (f-r (3)))) ->
+(1 / (2 / (3 / (f-r ())))) ->
+(1 / (2 / (3 / 1))) ->
+(1 / (2 / 3)) ->
+3/2
+
+(print (fold-left / 1 (list 1 2 3))) ->
+(i 1 (1 2 3)) ->
+(i 1 (2 3)) ->
+(i 1/2 (3)) ->
+(i 1/6 ()) ->
+1/6
+
+(print (fold-right list '() (list 1 2 3))) ->
+(list 1 (f-r (2 3))) ->
+(list 1 (list 2 (f-r (3)))) ->
+(list 1 (list 2 (list 3 (f-r ())))) ->
+(list 1 (list 2 (list 3 ()))) ->
+(list 1 (list 2 (3 ()))) ->
+(list 1 (2 (3 ()))) ->
+(1 (2 (3 ())))
+
+(print (fold-left list '() (list 1 2 3))) ->
+(i () (1 2 3)) ->
+(i (() 1) (2 3)) ->
+(i ((() 1) 2) (3)) ->
+(i (((() 1) 2) 3) ()) ->
+(((() 1) 2) 3)
+
+To guarantee f-r and f-l produce the same values for any sequence, a
+property that op should satisfy is the associative law: 
+(a op b) op c = a op (b op c).
+
+** Exercise 2.39
+(define (my-reverse-1 sequence)
+  (fold-right (lambda (x y)
+		(append y (list x)))
+	      '()
+	      sequence))
+
+(define (my-reverse-2 sequence)
+  (fold-left (lambda (x y)
+	       (append (list y) x))
+	     '()
+	     sequence))
+
+** Exercise 2.40
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+	     (map (lambda (j) (list i j))
+		  (enumerate-interval 1 (- i 1))))
+	   (enumerate-interval 1 n)))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum
+       (filter prime-sum?
+	       (unique-pairs n))))
+
+** Exercise 2.41
+
+(define (sum-s-triples n s)
+  (define (unique-triples n) ;; 1 <= k < j < i <= n
+    (flatmap (lambda (i)
+	       (map (lambda (pair) (cons i pair))
+		    (unique-pairs (- i 1))))
+	     (enumerate-interval 1 n)))
+
+  (define (sum-triple triple)
+    (accumulate + 0 triple))
+
+  (define (sum-s? triple)
+    (= s (sum-triple triple)))
+
+  (define (make-triple-sum triple)
+    (list (car triple)
+	  (cadr triple)
+	  (caddr triple)
+	  (sum-triple triple)))
+
+  (map make-triple-sum 
+       (filter sum-s?
+	       (unique-triples n))))
+
+** Exercise 2.42
+
+* 2.3 Symbolic Data
+** Exercise 2.53
+(print (list 'a 'b 'c)) ; (a, b, c)
+
+(print (list (list 'george))) ;((george))
+(print (cdr '((x1 x2) (y1 y2)))) ;((y1 y2))
+
+(print (cadr '((x1 x2) (y1 y2)))) ;(y1 y2)
+(print (pair? (car '(a short list)))) ; false
+(print (memq 'red '((red shoes) (blue shoes)))) ; false
+
+(print (memq 'red '(red shoes blue shoes))) ; (red shoes blue shoes)
+
+** Exercise 2.54
+; be able to handle (nested)list of symbol and number
+(define (my-equal? a b)
+  (cond ((not (= (length a) (length b))) ; 0
+	 false)
+	((and (null? a) (null? b)) ;1
+	 true)
+	((and (pair? (car a)) (pair? (car b))) ;2
+	 (and (my-equal? (car a) (car b))
+	      (my-equal? (cdr a) (cdr b))))
+	((or (and (number? (car a)) ;3
+		  (number? (car b)) 
+		  (= (car a) (car b)))
+	     (eq? (car a) (car b)))
+	 (my-equal? (cdr a) (cdr b)))
+	(else false))) ;4
+
+; This version is simpler, and the difference between this two deserves
+; attention: the previous version think in terms of (car a) and (car b),
+; this version think in terms of a and b.
+; Should learn from this. Think in a higher level.
+(define (my-equal? a b)
+  (cond ((and (null? a) (null? b)) ; 1
+	 true)
+	((and (pair? a) (pair? b)) ; 2
+	 (and (my-equal? (car a) (car b))
+	      (my-equal? (cdr a) (cdr b))))
+	((and (not (pair? a)) (not (pair? b))) ;3
+	 (eq? a b))
+	(else false))) ; 4
+
+** Exercise 2.55
+''letters = (quote (quote letters))<to be evaluated> 
+          = (quote letters)<evaluated result>
+
+So, now the result printed should make sense.
+
+** Exercise 2.56
+(define (make-exponentiation u n)
+  (cond ((= n 0)
+	 1)
+	((= n 1)
+	 u)
+	(else (list '** u n))))
+
+(define (exponentiation? x)
+  (and (pair? x) (eq? (car x) '**)))
+
+(define (base x)
+  (cadr x))
+
+(define (exponent x)
+  (caddr x))
+
+(define (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var) 1 0))
+        ((sum? exp)
+         (make-sum (deriv (addend exp) var)
+                   (deriv (augend exp) var)))
+        ((product? exp)
+         (make-sum
+           (make-product (multiplier exp)
+                         (deriv (multiplicand exp) var))
+           (make-product (deriv (multiplier exp) var)
+                         (multiplicand exp))))
+	((exponentiation? exp) ;; add here
+	 (make-product (make-product (exponent exp) 
+				     (make-exponentiation (base exp) 
+							  (- (exponent exp) 1)))
+		       (deriv (base exp) var))) ;; end add here
+        (else
+         (error "unknown expression type -- DERIV" exp))))
+
+; (print (deriv '(* 4 (** x 0)) 'x))
+; (print (deriv '(+ 4 (* 4 (** x 1))) 'x))
+; (print (deriv '(+ (* 4 x) (** x 4)) 'x))
+
+** Exercise 2.57
+(define (augend s) 
+  (nry s '+))
+
+(define (multiplicand p)
+  (nry p '*))
+  
+  ;(caddr p))
+
+;; if seq is of the form (op, arg1, arg2), then return arg2.
+;; if seq is of the from (op, arg1, arg2, ...argn), return (op arg2, ...argn).
+(define (nry seq op)
+  (let ((rest (cddr seq)))
+    (if (= (length rest) 1)
+	(car rest)
+	(cons op rest))))
+
+(print (deriv '(+ x x x x) 'x))
+(print (deriv '(* x x x x) 'x))
+
+** Exercise 2.58
+;; a
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list m1 '* m2))))
+
+(define (sum? x)
+  (and (pair? x) (eq? (cadr x) '+)))
+
+(define (addend s) (car s))
+
+(define (augend s) (caddr s))
+
+(define (product? x)
+  (and (pair? x) (eq? (cadr x) '*)))
+
+(define (multiplier p) (car p))
+
+(define (multiplicand p) (caddr p))
+
+(print (deriv '(x + (3 * (x + (y + 2)))) 'x))
+(print (deriv '(x + (3 * (x + (y + 2)))) 'y))
+
+;; b
+(define (sum? x)
+  (and (pair? x) (list? (memq '+ x))))
+
+(define (addend s) 
+  (define (collect-until-plus seq result)
+    (if (and (symbol? (car seq)) (eq? (car seq) '+))
+	result
+	(collect-until-plus (cdr seq) 
+			    (append result (list (car seq))))))
+
+  (let ((seq-before-plus (collect-until-plus s '())))
+    (if (= (length seq-before-plus) 1)
+	(car seq-before-plus)
+	seq-before-plus)))
+
+(define (augend s) 
+  (let ((seq-after-plus (cdr (memq '+ s))))
+    (if (= (length seq-after-plus) 1)
+	(car seq-after-plus)
+	seq-after-plus)))
+
+(define (deriv exp var)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var) 1 0))
+        ((sum? exp) ; must come before product
+         (make-sum (deriv (addend exp) var)
+                   (deriv (augend exp) var)))
+        ((product? exp)
+         (make-sum
+           (make-product (multiplier exp)
+                         (deriv (multiplicand exp) var))
+           (make-product (deriv (multiplier exp) var)
+                         (multiplicand exp))))
+        (else
+         (error "unknown expression type -- DERIV" exp))))
+
+** Exercise 2.59
+(define (union-set set1 set2)
+  (cond ((null? set1) 
+	 set2)
+	((element-of-set? (car set1) set2)
+	 (union-set (cdr set1) set2))
+	(else (union-set (cdr set1) (cons (car set1) set2)))))
+
+(define set1 '(1 2 3))
+(define set2 '(2 3 4))
+(print (union-set set1 set2))
+
+** Exercise 2.60
+;; UNORDERED AND DUPLICATE
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((equal? x (car set)) true)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set)
+      (cons x set))
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)
+         (cons (car set1)
+               (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))
+
+(define (union-set set1 set2)
+  (append set1 set2))
+
+(define set1 '(1 2 3))
+(define set2 '(2 3 4))
+(define set3 (adjoin-set 4 set2))
+(print set1)
+(print set2)
+(print set3)
+(print (union-set set1 set2))
+(print (intersection-set set1 set2))
+
+The efficiency: 
+n stands for length of set.
+element-of-set: O(n)
+adjoin-set: O(1)
+intersection-set: O(n^2)
+union-set: O(1)
+
+If the set operations used most are adjoin and union, this duplicate
+version is better in efficiency(measured by time). Another thing needs
+to note is that this version consumes more (memory) space.
+
+** Exercise 2.61
+(define (adjoin-set x set)
+  (let ((smallest (car set)))
+    (cond ((= x smallest)
+	   set)
+	  ((< x smallest)
+	   (cons x set))
+	  (else (cons smallest (adjoin-set x (cdr set)))))))
+
+** Exercise 2.62
+(define (union-set set1 set2)
+  (cond ((null? set1)
+	 set2)
+	((null? set2)
+	 set1)
+	(else (let ((x1 (car set1))
+		    (x2 (car set2)))
+		(cond ((= x1 x2)
+		       (cons x1 (union-set (cdr set1) (cdr set2))))
+		      ((< x1 x2)
+		       (cons x1 (union-set (cdr set1) set2)))
+		      (else cons x2 (union-set set1 (cdr set2))))))))
+	
+(define set1 '(1 2 3))
+(define set2 '(2 4 5))
+(define set3 (adjoin-set 3 set2))
+
+(print set1)
+(print set2)
+(print set3)
+
+(print (union-set set1 set2))
+(print (union-set set1 set3))
+(print (union-set set2 set3))
+
+** Exercise 2.63
+(define tree-1 '(7 (3 (1 () ()) (5 () ())) (9 () (11 () ()))))
+(define tree-2 '(3 (1 () ()) (7 (5 () ()) (9 () (11 () ())))))
+(define tree-3 '(5 (3 (1 () ()) ()) (9 (7 () ()) (11 () ()))))
+
+(print tree-1)
+(print (tree->list-1 tree-1))
+(print (tree->list-2 tree-1))
+
+(print tree-2)
+(print (tree->list-1 tree-2))
+(print (tree->list-2 tree-2))
+
+(print tree-3)
+(print (tree->list-1 tree-3))
+(print (tree->list-2 tree-3))
+
+;; a.
+I think the two procedures produce the same results for every tree.
+The list that the two procedures produce for figure 2.16 is:(1, 3, 5, 7, 9, 11) 
+for all the three trees. 
+
+Both of the two procedures implement a in-order traversal of a tree.
+
+;; b.
+No.
+For tree-list-1: T(n) = 2T(n/2) + O(n/2) = O(nlgn). (O(n/2): the cost of append two n/2 sized lists).
+For tree-list-2: T(n) = 2T(n/2) + O(1) = O(n). 
+
+** Exercise 2.64
+;; a.
+Think it recursively: first compute the left subtree, which contains
+about half n elements((n - 1) / 2); then get the current entry from 
+the left elements; then compute the right subtree; finally put the
+privious three elements together, you got the whole tree.
+        5
+     /     \
+    1       9
+     \    /   \
+      3  7     11
+
+;; b.
+T(n) = 2T(n/2) + O(1) = O(n)
+
+** Exercise 2.65
+(define (intersection-set-ordered-list set1 set2)
+  (if (or (null? set1) (null? set2))
+      '()
+      (let ((x1 (car set1)) (x2 (car set2)))
+        (cond ((= x1 x2)
+               (cons x1
+                     (intersection-set-ordered-list (cdr set1)
+                                       (cdr set2))))
+              ((< x1 x2)
+               (intersection-set-ordered-list (cdr set1) set2))
+              ((< x2 x1)
+               (intersection-set-ordered-list set1 (cdr set2)))))))
+
+;; from Exercise 2.62
+(define (union-set-ordered-list set1 set2)
+  (cond ((null? set1)
+	 set2)
+	((null? set2)
+	 set1)
+	(else (let ((x1 (car set1))
+		    (x2 (car set2)))
+		(cond ((= x1 x2)
+		       (cons x1 (union-set-ordered-list (cdr set1) (cdr set2))))
+		      ((< x1 x2)
+		       (cons x1 (union-set-ordered-list (cdr set1) set2)))
+		      (else cons x2 (union-set-ordered-list set1 (cdr set2))))))))
+
+(define (union-set set1 set2)
+  (list->tree (union-set-ordered-list (tree->list-2 set1) (tree->list-2 set2))))
+
+(define (intersection-set set1 set2)
+  (list->tree (intersection-set-ordered-list (tree->list-2 set1) (tree->list-2 set2))))
+
+(define tree-4 (list->tree '(1 2 3 4 5)))
+(define tree-5 (list->tree '(1 3 5 7 9)))
+(print tree-4)
+(print tree-5)
+(print (union-set tree-4 tree-5))
+(print (intersection-set tree-4 tree-5))
+
+** Exercise 2.66
+;; Assumption: numerical valuses as keys
+(define (lookup given-key set-of-records)
+  (if (null? set-of-records)
+      false
+      (let ((cur-record (entry set-of-records)))
+	(let ((cur-key (key cur-record)))
+	  (cond ((= given-key cur-key)
+		 cur-record)
+		((< given-key cur-key)
+		 (lookup given-key (left-branch set-of-records)))
+		(else (lookup given-key (right-branch set-of-records))))))))
+
+(define (key record) record)
+(print (lookup 4 tree-4))
+(print (lookup 4 tree-5))
+
+** Exercise 2.67
+(define sample-tree
+  (make-code-tree (make-leaf 'A 4)
+                  (make-code-tree
+                   (make-leaf 'B 2)
+                   (make-code-tree (make-leaf 'D 1)
+                                   (make-leaf 'C 1)))))
+
+(define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+(print (decode sample-message sample-tree))
+;; Message: (a d a b b c a)
+
+** Exercise 2.68
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+              (encode (cdr message) tree))))
+
+(define (member? x seq)
+  (pair? (memq x seq)))
+
+;; (print (member? 4 '(1 2 4)))
+;; (print (member? 3 '(1 2 4)))
+(define (encode-symbol symbol tree)
+  (define (encode-valid-symbol symbol tree)
+    (if (leaf? tree) ; if something wrong, should not reach here
+	'()
+	(let ((left-symbols (symbols (left-branch tree))))
+	  (if (member? symbol left-symbols)
+	      (cons 0 (encode-valid-symbol symbol (left-branch tree)))
+	      (cons 1 (encode-valid-symbol symbol (right-branch tree)))))))
+
+  (if (member? symbol (symbols tree))
+      (encode-valid-symbol symbol tree)
+      (error "invalid symbol" symbol)))
+
+(define sample-text (decode sample-message sample-tree))
+(print (equal? (encode sample-text sample-tree) sample-message))
+
+** Exercise 2.69
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+(define (successive-merge pair-set)
+  (if (= (length pair-set) 1)
+      (car pair-set)
+      (let ((merged (make-code-tree (car pair-set) (cadr pair-set)))
+	    (rest (cddr pair-set)))
+	(successive-merge (adjoin-set merged rest)))))
+
+(define test-output (generate-huffman-tree '((a 4) (b 2) (c 1) (d 1))))
+(print test-output)
+(print sample-tree)
+(print (equal? sample-tree test-output))
+
+** Exercise 2.70
+(define rock-song-pairs '((a 2) (boom 1) (get 2) (job 2) 
+			  (na 16) (sha 3) (yip 9) (wah 1)))
+
+(define rock-song-lyrics '(Get a job
+			       Sha na na na na na na na na
+			       Get a job
+			       Sha na na na na na na na na 
+			       Wah yip yip yip yip yip yip yip yip yip
+			       Sha boom))
+
+(print rock-song-pairs)
+(print rock-song-lyrics)
+
+(define rock-song-tree (generate-huffman-tree rock-song-pairs))
+(print rock-song-tree)
+
+(define encoded-song (encode rock-song-lyrics rock-song-tree))
+(print encoded-song)
+(print (length encoded-song))
+
+84 bits are required for the encoding.
+To encode 8 different symbols, we need 3 bits. And there are 
+36 symbols in the song, so the smallest number of bits that
+wouldbe need to encode this song is we used a fixed-length
+code for the eight-symbol is 36 * 3 = 108.
+
+** Exercise 2.71
+for n = 5:
+                                o
+                              /   \
+                             16    o
+                                  /  \
+                                 8    o
+                                     /  \
+                                    4    o
+                                        /  \
+                                       1    2
+For n = 10, the shape will be the same as n = 5, and I won't draw it
+here.
+
+One bit is required to encode the most frequent symbol. n - 1 (for
+n>=2)bits are required to encode the least frequent symbol.
+
+** Exercise 2.72
+For the special case described in exercise 2.71:
+O(n) steps are needed to encode the most frequent symbol.
+
+O(n^2) steps are needed to encode the least frequent symbol. At each
+step, the cost of searching the symbol is n - k + 1, where k stands
+for the k-step. For the least frequent symbol k goes from 1 up 
+to n(the leaf-step). So the total cost is:
+n + (n - 1) + (n - 2) + ... + 1 = n(n + 1) / 2, which is of order O(n^2).
+
+* 2.4 Multiple Representation for Abstract Data
+** Exercise 2.73
+a. 
+There are no operator or operands in a number and variable.
+ 
+b. 
+(define (deriv exp var)
+   (cond ((number? exp) 0) ; not the same number? defined in deriv-package
+         ((variable? exp) (if (same-variable? exp var) 1 0))
+         (else ((get 'deriv (operator exp)) (operands exp)
+                                            var))))
+
+(define (operator exp) (car exp))
+
+(define (operands exp) (cdr exp))
+
+(define (variable? x) (symbol? x))
+
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+
+;; (define (sum? x)
+;;   (and (pair? x) (eq? (car x) '+)))
+
+(define (install-deriv-package)
+  (define (addend s) (car s))
+
+  (define (augend s) (cadr s))
+
+  (define (multiplier p) (car p))
+
+  (define (multiplicand p) (cadr p))
+
+  ;; With simplification
+
+  (define (make-sum a1 a2)
+	(cond ((=number? a1 0) a2)
+		  ((=number? a2 0) a1)
+		  ((and (number? a1) (number? a2)) (+ a1 a2))
+		  (else (list '+ a1 a2))))
+
+  (define (=number? exp num)
+	(and (number? exp) (= exp num)))
+
+  (define (make-product m1 m2)
+	(cond ((or (=number? m1 0) (=number? m2 0)) 0)
+		  ((=number? m1 1) m2)
+		  ((=number? m2 1) m1)
+		  ((and (number? m1) (number? m2)) (* m1 m2))
+		  (else (list '* m1 m2))))
+
+  (define (deriv-sum operands var)
+	(make-sum (deriv (addend operands) var)
+			  (deriv (augend operands) var)))
+  
+  (define (deriv-product operands var)
+	(make-sum
+	 (make-product (multiplier operands)
+				   (deriv (multiplicand operands) var))
+	 (make-product (deriv (multiplier operands) var)
+				   (multiplicand operands))))
+
+  (put 'deriv '+ deriv-sum)
+  (put 'deriv '* deriv-product))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;;;;;;;;
+(install-deriv-package)
+(print (deriv '(+ x 3) 'x))
+(print (deriv '(* x y) 'x))
+(print (deriv '(* (* x y) (+ x 3))))
+
+c. 
+Add the following code to install-deriv-package:
+
+  (define (make-exponentiation u n)
+	(cond ((= n 0)
+		   1)
+		  ((= n 1)
+		   u)
+		  (else (list '** u n))))
+
+  (define (base x)
+	(car x))
+
+  (define (exponent x)
+	(cadr x))
+  
+  (define (deriv-expt operands var)
+	(make-product (make-product (exponent operands) 
+								(make-exponentiation 
+								 (base operands) 
+								 (- (exponent operands) 1)))
+				  (deriv (base operands) var)))
+
+  (put 'deriv '** deriv-expt)
+
+d.
+The "puts" need to change, add the following line to
+install-deriv-package:
+  ;; for d.
+  (put '** 'deriv deriv-expt)
+  (put '+ 'deriv deriv-sum)
+  (put '* 'deriv deriv-product)
+
+** Exercise 2.74
+;; a.
+;; The personnel file must be type-tagged by its division name. 
+;; The type of information must be supplied is: division name.
+(define (get-record personnel name)
+  ((get 'get-record (division personnel)) (file personnel) name))
+
+(define (division p)
+  (type-tag p))
+
+(define (file p)
+  (contents p))
+
+;; b.
+;; The record be type-tagged by its division name
+(define (get-salary record)
+  ((get 'get-salary (division record)) (record-content record)))
+
+(define (record-content r)
+  (contents r))
+
+;; c.
+(define (find-employee-record personnel-list name)
+  (if (null? personnel-list)
+	  false
+	  (let ((result (get-record (car personnel-list) name)))
+		(if result
+			result
+			(find-employee-record (cdr personnel-list) name)))))
+
+;; d.
+;; Tag all personnel file and employee record. And "put" the according
+;; method for manipulate into the "table".
+
+;; The following is a simple example
+
+(define (install-division-1-pakg)
+  (define (get-name record); with division name
+	(cadr record))
+ 
+  (define (get-record division name)
+	(if (or (null? division) (string<? (symbol->string name) 
+									   (symbol->string (get-name (car division)))))
+		false
+		(if (equal? (get-name (car division)) name)
+			(car division)
+			(get-record (cdr division) name))))
+
+  (define (get-salary record) ; without division name
+	(caddr record))
+
+  (put 'get-record 'division-1 get-record)
+  (put 'get-salary 'division-1 get-salary))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-division-2-pakg)
+  (define (get-name record) ; with
+	(cadddr record))
+ 
+  (define (get-record division name)
+	(if (null? division)
+		false
+		(if (equal? (get-name (car division)) name)
+			(car division)
+			(get-record (cdr division) name))))
+
+  (define (get-salary record) ; without
+	(cadr record))
+
+  (put 'get-record 'division-2 get-record)
+  (put 'get-salary 'division-2 get-salary))
+
+;; ordered by name
+(define division-1 '(division-1 
+					 (division-1 a1 addr-a1 salary-a1) 
+					 (division-1 c1 addr-c1 salary-c1) 
+					 (division-1 d1 addr-d1 salary-d1)))
+
+(define division-2 '(division-2
+					 (division-2 addr-a2 salary-a2 a2) 
+					 (division-2 addr-c2 salary-c2 c2)
+					 (division-2 addr-d2 salary-d2 d2)))
+;; (print division-1)
+;; (print division-2)
+
+(install-division-1-pakg)
+(install-division-2-pakg)
+
+(print (get-salary (get-record division-1 'a1)))
+(print (get-salary (get-record division-1 'c1)))
+(print (get-record division-1 'd1))
+(print (get-record division-1 'f1))
+
+(print (get-salary (get-record division-2 'a2)))
+(print (get-salary (get-record division-2 'c2)))
+(print (get-record division-2 'd2))
+(print (get-record division-2 'a3))
+
+(print (find-employee-record (list division-1 division-2) 'd1))
+(print (find-employee-record (list division-1 division-2) 'c2))
+(print (find-employee-record (list division-1 division-2) 'd4))
+
+** Exercise 2.75
+(define (make-from-mag-ang mag ang)
+  (define (dispatch op)
+    (cond ((eq? op 'real-part) (* mag (cos ang)))
+          ((eq? op 'imag-part) (* mag (sin ang)))
+          ((eq? op 'magnitude) mag)
+          ((eq? op 'angle) ang)
+          (else
+           (error "Unknown op -- MAKE-FROM-REAL-IMAG" op))))
+  dispatch)
+
+** Exercise 2.76
+1. generic operations with explicit dispatch:
+(1) new type: every operation associated with this new type need a "new"
+name, and the every generic operation will need add a new-type?
+conditional branch.
+(2)new operation: the generic operation part need to add a generation
+corresponding operation and conditional branch for every type that
+plans to support this new operation.
+
+2. data-directed style:
+(1) new type: need a new install-new-type-package procedure, and the
+generic operation part needn't to change.
+(2)new operation: the generic operation part need to add a
+corresponding operation(one line of code using apply generic), and the
+package that plans to support this new operation need to define its
+version and a "put".
+
+3. message-passing:
+(1) new type: need a new "intelligent data type", the generic
+operation part needn't change.
+(2) new operation: the generic operation part need to add a
+corresponding operation(one line of code using apply generic), and the
+"intelligent data type" that plans to support this new operation need
+t add a new conditional branch in its dispatch part.
+
+"1." is the worst if new types must often be added.
+
+In my opinion all the three need almost the same amount work to add a
+new operation, "2." and "3." have more encapsulation than "1.". If
+taking the work of "type work" into consideration, "3." is the most
+appropriate.
+
+* 2.5 Systems with Generic Operations
+** Exercise 2.77
+;;;;;;;;;;;;;; generic arithmetic procedures ;;;;;;;;;;;;;;;;;;;
+(define (add x y) (apply-generic 'add x y))
+(define (sub x y) (apply-generic 'sub x y))
+(define (mul x y) (apply-generic 'mul x y))
+(define (div x y) (apply-generic 'div x y))
+
+;;;;;;;;;;;;; scheme numerber package ;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-scheme-number-package)
+  (define (tag x)
+    (attach-tag 'scheme-number x))
+  (put 'add '(scheme-number scheme-number)
+       (lambda (x y) (tag (+ x y))))
+  (put 'sub '(scheme-number scheme-number)
+       (lambda (x y) (tag (- x y))))
+  (put 'mul '(scheme-number scheme-number)
+       (lambda (x y) (tag (* x y))))
+  (put 'div '(scheme-number scheme-number)
+       (lambda (x y) (tag (/ x y))))
+  (put 'make 'scheme-number
+       (lambda (x) (tag x)))
+  'done)
+
+(define (make-scheme-number n)
+  ((get 'make 'scheme-number) n))
+
+;;;;;;;;;;; rational numbe package ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-rational-package)
+  ;; internal procedures
+  (define (numer x) (car x))
+  (define (denom x) (cdr x))
+  (define (make-rat n d)
+    (let ((g (gcd n d)))
+      (cons (/ n g) (/ d g))))
+  (define (add-rat x y)
+    (make-rat (+ (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+  (define (sub-rat x y)
+    (make-rat (- (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+  (define (mul-rat x y)
+    (make-rat (* (numer x) (numer y))
+              (* (denom x) (denom y))))
+  (define (div-rat x y)
+    (make-rat (* (numer x) (denom y))
+              (* (denom x) (numer y))))
+  ;; interface to rest of the system
+  (define (tag x) (attach-tag 'rational x))
+  (put 'add '(rational rational)
+       (lambda (x y) (tag (add-rat x y))))
+  (put 'sub '(rational rational)
+       (lambda (x y) (tag (sub-rat x y))))
+  (put 'mul '(rational rational)
+       (lambda (x y) (tag (mul-rat x y))))
+  (put 'div '(rational rational)
+       (lambda (x y) (tag (div-rat x y))))
+
+  (put 'make 'rational
+       (lambda (n d) (tag (make-rat n d))))
+  'done)
+
+(define (make-rational n d)
+  ((get 'make 'rational) n d))
+
+;;;;;;;;;;;;;;; complex number package ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-complex-package)
+  ;; imported procedures from rectangular and polar packages
+  (define (make-from-real-imag x y)
+    ((get 'make-from-real-imag 'rectangular) x y))
+  (define (make-from-mag-ang r a)
+    ((get 'make-from-mag-ang 'polar) r a))
+  ;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (+ (real-part z1) (real-part z2))
+                         (+ (imag-part z1) (imag-part z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (- (real-part z1) (real-part z2))
+                         (- (imag-part z1) (imag-part z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (* (magnitude z1) (magnitude z2))
+                       (+ (angle z1) (angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
+                       (- (angle z1) (angle z2))))
+
+  ;; interface to rest of the system
+  (define (tag z) (attach-tag 'complex z))
+  (put 'add '(complex complex)
+       (lambda (z1 z2) (tag (add-complex z1 z2))))
+  (put 'sub '(complex complex)
+       (lambda (z1 z2) (tag (sub-complex z1 z2))))
+  (put 'mul '(complex complex)
+       (lambda (z1 z2) (tag (mul-complex z1 z2))))
+  (put 'div '(complex complex)
+       (lambda (z1 z2) (tag (div-complex z1 z2))))
+  (put 'make-from-real-imag 'complex
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'complex
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  (put 'real-part '(complex) real-part)
+  (put 'imag-part '(complex) imag-part)
+  (put 'magnitude '(complex) magnitude)
+  (put 'angle '(complex) angle)
+  'done)
+
+(define (make-complex-from-real-imag x y)
+  ((get 'make-from-real-imag 'complex) x y))
+
+(define (make-complex-from-mag-ang r a)
+  ((get 'make-from-mag-ang 'complex) r a))
+
+;;;;;;;;;;; rectangular-representented complex number ;;;;;;;;;;;;;;;;
+(define (install-rectangular-package)
+  ;; internal procedures
+  (define (real-part z) (car z))
+  (define (imag-part z) (cdr z))
+  (define (make-from-real-imag x y) (cons x y))
+  (define (magnitude z)
+    (sqrt (+ (square (real-part z))
+             (square (imag-part z)))))
+  (define (angle z)
+    (atan (imag-part z) (real-part z)))
+  (define (make-from-mag-ang r a) 
+    (cons (* r (cos a)) (* r (sin a))))
+
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'rectangular x))
+  (put 'real-part '(rectangular) real-part)
+  (put 'imag-part '(rectangular) imag-part)
+  (put 'magnitude '(rectangular) magnitude)
+  (put 'angle '(rectangular) angle)
+  (put 'make-from-real-imag 'rectangular
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'rectangular
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+
+;;;;;;;;;;;;;;; ploar-represented complex number ;;;;;;;;;;;;;;;;;;;
+(define (install-polar-package)
+  ;; internal procedures
+  (define (magnitude z) (car z))
+  (define (angle z) (cdr z))
+  (define (make-from-mag-ang r a) (cons r a))
+  (define (real-part z)
+    (* (magnitude z) (cos (angle z))))
+  (define (imag-part z)
+    (* (magnitude z) (sin (angle z))))
+  (define (make-from-real-imag x y) 
+    (cons (sqrt (+ (square x) (square y)))
+          (atan y x)))
+
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'polar x))
+  (put 'real-part '(polar) real-part)
+  (put 'imag-part '(polar) imag-part)
+  (put 'magnitude '(polar) magnitude)
+  (put 'angle '(polar) angle)
+  (put 'make-from-real-imag 'polar
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'polar
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+
+;;;;;;;;;;;;;; generic selectors ;;;;;;;;;;;;;;
+(define (real-part z) (apply-generic 'real-part z))
+(define (imag-part z) (apply-generic 'imag-part z))
+(define (magnitude z) (apply-generic 'magnitude z))
+(define (angle z) (apply-generic 'angle z))
+
+;;;;;;; install ;;;;;;;;;;;;;;;;;;;;;;;;;;
+(install-scheme-number-package)
+(install-rational-package)
+(install-complex-package)
+(install-rectangular-package)
+(install-polar-package)
+
+(define z-r (make-complex-from-real-imag 3 4))
+(define z-p (make-complex-from-mag-ang 5 (atan 4 3)))
+(print z-r)
+(print z-p)
+(print (magnitude z-r))
+(print (magnitude z-p))
+(print (apply (get 'magnitude '(rectangular)) '((3 . 4))))
+
+;; I will illustrate this using an example: 
+;; (magnitude z-r) ->
+;; (apply-generic 'magnitude z-r) -> 
+;; proc = (get 'magnitude '(complex))
+;; args = ((rectangular 3 . 4))
+;; (apply proc args) ->
+;; (apply-generic 'magnitude (rectangular 3 . 4)) ->
+;; (apply (get 'magnitude '(rectangular) ((3 . 4)))) ->
+;; 5
+
+;; So, apply-generic is invoked twice.
+
+** Exercise 2.78
+;;;;;;;;;;;;;;;;;; tag-type operations ;;;;;;;;;;;;;;;;
+(define (attach-tag type-tag contents)
+  (if (eq? type-tag 'scheme-number)
+	  contents
+	  (cons type-tag contents)))
+
+(define (type-tag datum)
+  (cond ((pair? datum)
+		 (car datum))
+		((number? datum)
+		 'scheme-number)
+		(else error "Bad tagged datum -- TYPE-TAG" datum)))
+
+(define (contents datum)
+  (cond ((pair? datum)
+		 (cdr datum))
+		((number? datum)
+		 datum)
+		(error "Bad tagged datum -- CONTENTS" datum)))
+
+
+(define x (make-scheme-number 4))
+(define y (make-scheme-number 14))
+
+(print x)
+(print y)
+(print (add x y))
+(print (div x y))
+
+(print (add 4 14))
+(print (div 4 14))
+
+** Exercise 2.79
+;; ;; add to install-scheme-number-package
+;; (put 'equ? '(scheme-number scheme-number) =)
+
+;; ;; add to install-rational-package
+;; (define (equ? x y)
+;;   (and (= (numer x) (numer y))
+;; 	   (= (denom x) (denom y))))
+
+;; (put 'equ? '(ratiional rational) equ?)
+
+;; ;; add to install-complex-package
+;; (define (equ? x y)
+;;   (and (= (real-part x) (real-part y))
+;; 	   (= (imag-part x) (imag-part y))))
+
+;; (put 'equ? '(complex complex) equ?)
+(define (equ? x y)
+  (apply-generic 'equ? x y))
+
+(define s-1 (make-scheme-number 4))
+(define s-2 (make-scheme-number 4))
+(define s-3 (make-scheme-number -4))
+(print (equ? s-1 s-2))
+(print (equ? s-1 s-3))
+(print (equ? 2 2))
+(print (equ? 2 4))
+(print "scheme-num done!")
+
+(define r-1 (make-rational 2 4))
+(define r-2 (make-rational 1 2))
+(define r-3 (make-rational 2 3))
+(print (equ? r-1 r-2))
+(print (equ? r-1 r-3))
+(print "rational number done!")
+
+(define z-1 (make-complex-from-real-imag 3 4))
+(define z-2 (make-complex-from-mag-ang 5 (atan 4 3)))
+(define z-3 (make-complex-from-mag-ang 5 (atan 3 3)))
+(print (real-part z-2))
+(print (imag-part z-2))
+(print (equ? z-1 z-1))
+(print (equ? z-1 z-2))
+(print (equ? z-2 z-3))
+(print "complex number done!")
+
+** Exercise 2.80
+;; ;;;; add to scheme-number-package
+;; (define (=zero? x)
+;;   (= x 0))
+
+;; (put '=zero? '(scheme-number) =zero?)
+
+;; ;;;; add to rational-package
+;; (define (=zero? x)
+;;   (= (number x) 0))
+
+;; (put '=zero? '(rational) =zero?)
+
+;; ;;;; add to complex-package
+;; (define (=zero? x)
+;;   (and (= (real-part x) 0)
+;; 	   (= (imag-part x) 0)))
+
+;; (put '=zero? '(complex) =zero?)
+
+(define (=zero? x)
+  (apply-generic '=zero? x))
+
+(define s-1 (make-scheme-number 0))
+(define s-2 (make-scheme-number 4))
+;; (define s-3 (make-scheme-number -4))
+(print (=zero? s-1))
+(print (=zero? s-2))
+(print (=zero? 0))
+(print (=zero? 4))
+;;(print (equ? 2 4))
+(print "scheme-num done!")
+
+(define r-1 (make-rational 0 4))
+(define r-2 (make-rational 1 2))
+;;(define r-3 (make-rational 2 3))
+(print (=zero? r-1))
+(print (=zero? r-2))
+(print "rational number done!")
+
+(define z-1 (make-complex-from-real-imag 0 0))
+(define z-2 (make-complex-from-mag-ang 5 (atan 4 3)))
+(define z-3 (make-complex-from-mag-ang 0 (atan 3 3)))
+;; (print (real-part z-2))
+;; (print (imag-part z-2))
+(print (=zero? z-1))
+(print (=zero? z-2))
+(print (=zero? z-3))
+(print "complex number done!")
+
+** Exercise 2.81
+;; a. In both cases, applying apply-generic will cause infinite loop.
+
+;; b. No, the orginal will work well, but it is better to check if the 
+;;    two arguments are of the same type.
+
+;; c.  
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+				(if (eq? type1 type2) ;; changed here
+					(error "No method for these types"
+						   (list op type-tags)) ;; end of change
+					(let ((t1->t2 (get-coercion type1 type2))
+						  (t2->t1 (get-coercion type2 type1)))
+					  (cond (t1->t2
+							 (apply-generic op (t1->t2 a1) a2))
+							(t2->t1
+							 (apply-generic op a1 (t2->t1 a2)))
+							(else
+							 (error "No method for these types"
+									(list op type-tags)))))))
+              (error "No method for these types"
+                     (list op type-tags)))))))
+
+** Exercise 2.82
+(define (apply-generic op . args)
+  (define (same-type? lst)
+	(let ((type (car lst)))
+	  (every (lambda (x) (eq? x type)) lst)))
+
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+		  (if (same-type? type-tags)
+			  (error "No method for these types"
+					 (list op type-tags))
+			  (let ((coercion-args (coercion args 0)))
+				(if coercion-args
+					(apply 
+					 apply-generic (append (list op) coercion-args))
+					)))))))
+
+(define (try-coercion target-type args-list result)
+  (if (null? args-list)
+	  result
+	  (let ((a1 (car args-list)))
+		(let ((t1 (type-tag a1)))
+		  (cond ((eq? target-type t1)
+				 (try-coercion target-type
+							   (cdr args-list)
+							   (append result (list a1))))
+				((get-coercion t1 target-type)
+				 (try-coercion target-type
+							   (cdr args-list)
+							   (append result
+									   (list ((get-coercion t1 target-type) a1)))))
+				(else result))))))
+
+(define (coercion args-list nth)
+  (if (>= nth (length args-list))
+	  false
+	  (let ((try-list (try-coercion 
+					   (type-tag (list-ref args-list nth)) 
+								 args-list 
+								 '())))
+		(if (= (length args-list) (length try-list))
+			try-list
+			(coercion args-list (+ nth 1))))))
+
+
+(define (put-coercion from-type target-type coercion-func)
+  (put from-type target-type coercion-func))
+
+(define (get-coercion from-type target-type)
+  (get from-type target-type))
+
+(define (scheme-number->complex n)
+  (make-complex-from-real-imag (contents n) 0))
+
+
+(put-coercion 'scheme-number 'complex scheme-number->complex)
+
+(define s-1 (make-scheme-number 0))
+(define s-2 (make-scheme-number 4))
+
+(define r-1 (make-rational 0 4))
+
+(define z-1 (make-complex-from-real-imag 0 0))
+(define z-2 (make-complex-from-mag-ang 5 (atan 4 3)))
+(define z-3 (make-complex-from-mag-ang 0 (atan 3 3)))
+
+(print (try-coercion 'complex (list -4 s-1 s-2 z-1 z-2 r-1 z-3) '()))
+(print (try-coercion 'complex (list -4 s-1 s-2 z-1 z-2 z-3) '()))
+
+(print (coercion (list -4 s-1 s-2 z-1 z-2 r-1 z-3) 0))
+(print (coercion (list -4 s-1 s-2 z-1 z-2 z-3) 0))
+
+(print (add z-1 s-1))
+(print (add s-1 z-1))
+(print (add z-2 -1))
+(print (add -1 z-2))
+;; A situation where this strategy is not sufficiently general: we are
+;; trying to coerce the arguments only to types that are present in the
+;; call, and so can miss other types.
+
+;; Consider the example in Figure 2.26 in the book. Suppose we have a
+;; call with these types: (kite quadrilateral). Since kite can be coerced
+;; into quadrilateral, everything works as expected.
+
+;; But now suppose we have a call with: (triangle kite
+;; quadrilateral). Going over each of these types and trying to
+;; coerce them to each other won’t work. But they can all be coerced 
+;; into polygon. This demonstrates the flaw of this method. What we
+;; should be really going is finding some common “ancestor” type for all
+;; the types we work on.
+
+** Exercise 2.83
+;; I will use scheme-numbe as Integer and ignore Real
+;; So, the hierarchy is: scheme-number -> rational number -> complex number
+
+;; add to scheme-number-package
+;; (define (integer->rational n)
+;;   (make-rational n 1))
+
+;; (put 'raise '(integer) integer->rational)
+
+;; add to rational-package
+;; (define (rational->complex r)
+;;   (make-complex-from-real-imag (/ (numer r) (denom r)) 0))
+
+;; (put 'raise '(rational) rational->complex)
+
+(define (raise x)
+  (apply-generic 'raise x))
+
+(define s-1 (make-scheme-number 0))
+(print (raise s-1))
+(print (raise 14))
+
+(define r-1 (make-rational 1 4))
+(print (raise r-1))
+
+(define z-1 (make-complex-from-real-imag 0 0))
+;; (print (raise z-1))
+
+** Exercise 2.84
+(define (apply-generic op . args)
+
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+		  (if (not (check-type-list type-tags))
+			  (error "No method for these types"
+					 (list op type-tags))
+			  (apply apply-generic
+					 (append (list op)
+							 (raise-to-highest args
+											   (find-highest-type type-tags)))))))))
+
+;;;; hierarchy of types, low -> high
+(define hierarchy '(scheme-number rational complex))
+
+
+;;;;;;; chcek 
+(define (check-type-list type-list)
+
+  (define (same-type? lst)
+	(let ((type (car lst)))
+	  (every (lambda (x) (eq? x type)) lst)))
+
+  (define (valid-type? type)
+	(memq type hierarchy))
+  
+  (and (not (same-type? type-list))
+	   (every valid-type? type-list)))
+	  
+;;;;;;; find highest type
+(define (find-highest-type type-list)
+  (define (type-to-position type)
+	(- (length hierarchy) (length (memq type hierarchy))))
+
+  (list-ref hierarchy (apply max (map type-to-position type-list))))
+
+;;;;;;;;;;;;;;;; raise
+(define (raise-to-highest arg-list target-type)
+
+  (define (raise-to arg target-type)
+	(if (eq? (type-tag arg) target-type)
+		arg
+		(raise-to (raise arg) target-type)))
+
+	(map (lambda (type) (raise-to type target-type)) arg-list))
+
+
+
+;;;;;;;;;;;;;;;;;;;; test case ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define s-1 (make-scheme-number 0))
+(define s-2 (make-scheme-number 4))
+
+(define r-1 (make-rational 0 4))
+
+(define z-1 (make-complex-from-real-imag 0 0))
+(define z-2 (make-complex-from-mag-ang 5 (atan 4 3)))
+(define z-3 (make-complex-from-mag-ang 0 (atan 3 3)))
+
+(print (add s-1 s-2))
+(print (add s-1 4))
+(print (add r-1 r-1))
+(print (add z-1 z-3))
+(print "same type done\n\n")
+
+(print (add r-1 s-2))
+(print (add s-2 r-1))
+(print "s-r done\n\n")
+
+(print (add z-1 s-1))
+(print (add s-1 z-1))
+(print (add z-2 -1))
+(print (add -1 z-2))
+(print "s-z done\n\n")
+
+(print (add z-2 r-1))
+(print (add r-1 z-2))
+(print "r-z done\n\n")
+
+;; (define s-1 (make-scheme-number 0))
+;; (print (raise-to s-1 'scheme-number))
+;; (print (raise-to s-1 'rational))
+;; (print (raise-to s-1 'complex))
+;; (print (raise-to 4 'scheme-number))
+;; (print (raise-to 4 'rational))
+;; (print (raise-to 14 'complex))
+;; (print "scheme number done\n\n")
+
+;; (define r-1 (make-rational 1 4))
+;; (print (raise-to r-1 'rational))
+;; (print (raise-to r-1 'complex))
+;; (print (raise-to r-1 'scheme-number)) ;; don't do it
+(print "rational number done\n\n")
+
+;; (define z-1 (make-complex-from-real-imag 0 0))
+;; (print (raise-to z-1 'complex))
+;; (print (raise-to z-1 'rational))
+;; (print "complex number done\n\n")
+
+;; (define h1 '(rational complex scheme-number))
+;; (define h2 '(scheme-number rational complex))
+;; (define h3 '(rational rational))
+;; (define h4 '(scheme-number scheme-number))
+;; (define h5 '(scheme-number rational))
+
+;; (print (find-highest-type h1))
+;; (print (find-highest-type h2))
+;; (print (find-highest-type h3))
+;; (print (find-highest-type h4))
+;; (print (find-highest-type h5))
+
+** Exercise 2.85
+;; hierarchy: scheme-number(as integer) -> rational -> complex
+;; add to rational 
+;; (define (drop x)
+;;   (round (/ (numer x) (denom x))))
+
+;; (put 'drop '(rational) drop)
+
+;; add to complex
+;; (define (drop x)
+;;   (real-part x))
+
+;; (put 'drop '(complex) drop)
+
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (if (need-drop? op) ;; add here
+			  (drop (apply proc (map contents args)))
+			  (apply proc (map contents args))) ;; end here
+		  (if (not (check-type-list type-tags))
+			  (error "No method for these types"
+					 (list op type-tags))
+			  (apply apply-generic
+					 (append (list op)
+							 (raise-to-highest args
+											   (find-highest-type type-tags)))))))))
+
+(define need-drop-op-list '(add sub mul div))
+
+(define (need-drop? op)
+  (memq op need-drop-op-list))
+
+(define (project x)
+  (let ((d-p (get 'drop (list (type-tag x)))))
+	(if d-p
+		(let ((dropped (d-p (contents x))))
+		  (if (equ? dropped x)
+			  (project dropped)
+			  x))
+		x)))
+
+(define (drop x)
+  (project x))
+			  
+
+
+
+;;;;;;;;;;;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define s-1 (make-scheme-number 0))
+(define s-2 (make-scheme-number 4))
+(define s-3 (make-scheme-number -4))
+(print (drop s-3))
+(print (drop 14))
+(print "scheme-num done\n\n")
+
+(define r-1 (make-rational 0 4))
+(define r-2 (make-rational 1 2))
+(define r-3 (make-rational 2 1))
+;; (print (equ? 2 r-3))
+;; (print (drop r-1))
+;; (print (drop r-2))
+;; (print (drop r-3))
+(print (add r-1 r-3))
+(print (add -4 r-3))
+(print (add r-3 s-3))
+(print (add r-2 2))
+(print "rational number done!\n\n")
+
+(define z-1 (make-complex-from-real-imag 2 0))
+(define z-2 (make-complex-from-real-imag 5 3))
+(define z-3 (make-complex-from-mag-ang 5 (atan 4 3)))
+(define z-4 (make-complex-from-mag-ang 0 (atan 3 3)))
+;; (print (drop z-1))
+;; (print (drop z-2))
+;; (print (drop z-3))
+;; (print (drop z-4))
+(print (add z-1 z-2))
+(print (add z-1 z-1))
+(print (add z-1 4))
+(print (add z-2 4))
+(print (add z-2 r-3))
+(print (add z-1 r-3))
+(print "complex number done!\n\n")
+
+
+Note: I got infinite loop the first time, because I didn't realize
+I need the "need-drop?" function. Should think things as thoroughly
+as possible.
+
+** Exercise 2.86
+Needed changes:
+1 scheme-number package:
+add sine, consine, atang, sqrt-g, square-g
+
+2 rational package
+add sine, consine, atang, sqrt-g, square-g
+
+3 complex package, rectangular, polar: (if needed)
+change: + to add, - to sub, * to sub, / to div, sin to sine, 
+cos to cosine, atan to atang, sqrt to sqrt-g, square to square-g
+
+equ-complex to use equ?
+
+ =zero-complex to use =zero?
+
+
+;;;;;;;;;;;;;; generic arithmetic procedures ;;;;;;;;;;;;;;;;;;;
+(define (add x y) (apply-generic 'add x y))
+(define (sub x y) (apply-generic 'sub x y))
+(define (mul x y) (apply-generic 'mul x y))
+(define (div x y) (apply-generic 'div x y))
+
+;;;;;;;;;;;;; scheme numerber package ;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-scheme-number-package)
+  (define (tag x)
+    (attach-tag 'scheme-number x))
+  (define (=zero? x)
+	(= x 0))
+  (define (scheme-number->rational n)
+	(make-rational n 1))
+
+  (put 'add '(scheme-number scheme-number)
+       (lambda (x y) (tag (+ x y))))
+  (put 'sub '(scheme-number scheme-number)
+       (lambda (x y) (tag (- x y))))
+  (put 'mul '(scheme-number scheme-number)
+       (lambda (x y) (tag (* x y))))
+  (put 'div '(scheme-number scheme-number)
+       (lambda (x y) (tag (/ x y))))
+  (put 'make 'scheme-number
+       (lambda (x) (tag x)))
+  (put 'equ? '(scheme-number scheme-number) =)
+  (put '=zero? '(scheme-number) =zero?)
+  (put 'raise '(scheme-number) scheme-number->rational)
+  (put 'sine '(scheme-number) ;; change here
+	   (lambda (x) (tag (sin x))))
+  (put 'cosine '(scheme-number)
+	   (lambda (x) (tag (cos x))))
+  (put 'atang '(scheme-number)
+	   (lambda (x) (tag (atan x)))) 
+  (put 'sqrt-g '(scheme-number)
+	   (lambda (x) (tag (sqrt x))))
+  (put 'square-g '(scheme-number)
+	   (lambda (x) (tag (square x))));; end here
+  'done)
+
+(define (make-scheme-number n)
+  ((get 'make 'scheme-number) n))
+
+;;;;;;;;;;; rational numbe package ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-rational-package)
+  ;; internal procedures
+  (define (numer x) (car x))
+  (define (denom x) (cdr x))
+  (define (make-rat n d)
+    (let ((g (gcd n d)))
+      (cons (/ n g) (/ d g))))
+  (define (add-rat x y)
+    (make-rat (+ (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+  (define (sub-rat x y)
+    (make-rat (- (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+  (define (mul-rat x y)
+    (make-rat (* (numer x) (numer y))
+              (* (denom x) (denom y))))
+  (define (div-rat x y)
+    (make-rat (* (numer x) (denom y))
+              (* (denom x) (numer y))))
+  (define (equ? x y)
+	(and (= (numer x) (numer y))
+		 (= (denom x) (denom y))))
+  (define (=zero? x)
+	(print "rational")
+	(= (numer x) 0))
+  (define (rational->complex r)
+	(make-complex-from-real-imag (/ (numer r) (denom r)) 0))
+  (define (drop x)
+	(round (/ (numer x) (denom x))))
+
+  ;; interface to rest of the system
+  (define (tag x) (attach-tag 'rational x))
+  (put 'add '(rational rational)
+       (lambda (x y) (tag (add-rat x y))))
+  (put 'sub '(rational rational)
+       (lambda (x y) (tag (sub-rat x y))))
+  (put 'mul '(rational rational)
+       (lambda (x y) (tag (mul-rat x y))))
+  (put 'div '(rational rational)
+       (lambda (x y) (tag (div-rat x y))))
+
+  (put 'make 'rational
+       (lambda (n d) (tag (make-rat n d))))
+  (put 'equ? '(rational rational) equ?)
+  (put '=zero? '(rational) =zero?)
+  (put 'raise '(rational) rational->complex)
+  (put 'drop '(rational) drop)
+  (put 'sine '(rational)  ;; change here
+	   (lambda (x) (sin (/ (numer x) (denom x)))))
+  (put 'cosine '(rational)
+	   (lambda (x) (cos (/ (numer x) (denom x)))))
+  (put 'atang '(rational)
+	   (lambda (x) (atan (/ (numer x) (denom x)))))
+  (put 'sqrt-g '(rational)
+	   (lambda (x) (sqrt (/ (numer x) (denom x)))))
+  (put 'square-g '(rational)
+	   (lambda (x) (tag (make-rat (square (numer x))
+								  (square (denom x))))))
+  'done)
+
+(define (make-rational n d)
+  ((get 'make 'rational) n d))
+
+;;;;;;;;;;;;;;; complex number package ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-complex-package)
+  ;; imported procedures from rectangular and polar packages
+  (define (make-from-real-imag x y)
+    ((get 'make-from-real-imag 'rectangular) x y))
+  (define (make-from-mag-ang r a)
+    ((get 'make-from-mag-ang 'polar) r a))
+  ;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (add (real-part z1) (real-part z2))
+                         (add (imag-part z1) (imag-part z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (sub (real-part z1) (real-part z2))
+                         (sub (imag-part z1) (imag-part z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (mul (magnitude z1) (magnitude z2))
+                       (add (angle z1) (angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (div (magnitude z1) (magnitude z2))
+                       (sub (angle z1) (angle z2))))
+  (define (equ-complex? x y)
+	(and (equ? (real-part x) (real-part y))
+		 (equ? (imag-part x) (imag-part y))))
+
+  (define (=zero-complex? x)
+	(and (=zero? (real-part x))
+		 (=zero? (imag-part x))))
+  (define (drop x)
+	(round (real-part x)))
+  ;; interface to rest of the system
+  (define (tag z) (attach-tag 'complex z))
+  (put 'add '(complex complex)
+       (lambda (z1 z2) (tag (add-complex z1 z2))))
+  (put 'sub '(complex complex)
+       (lambda (z1 z2) (tag (sub-complex z1 z2))))
+  (put 'mul '(complex complex)
+       (lambda (z1 z2) (tag (mul-complex z1 z2))))
+  (put 'div '(complex complex)
+       (lambda (z1 z2) (tag (div-complex z1 z2))))
+  (put 'make-from-real-imag 'complex
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'complex
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  (put 'real-part '(complex) real-part)
+  (put 'imag-part '(complex) imag-part)
+  (put 'magnitude '(complex) magnitude)
+  (put 'angle '(complex) angle)
+  (put 'equ? '(complex complex) equ-complex?)
+  (put '=zero? '(complex) =zero-complex?)
+  (put 'drop '(complex) drop)
+  'done)
+
+(define (make-complex-from-real-imag x y)
+  ((get 'make-from-real-imag 'complex) x y))
+
+(define (make-complex-from-mag-ang r a)
+  ((get 'make-from-mag-ang 'complex) r a))
+
+;;;;;;;;;;; rectangular-representented complex number ;;;;;;;;;;;;;;;;
+(define (install-rectangular-package)
+  ;; internal procedures
+  (define (real-part z) (car z))
+  (define (imag-part z) (cdr z))
+  (define (make-from-real-imag x y) (cons x y))
+  (define (magnitude z)
+    (sqrt-g (add (square-g (real-part z))
+             (square-g (imag-part z)))))
+  (define (angle z)
+    (atang (imag-part z) (real-part z)))
+  (define (make-from-mag-ang r a) 
+    (consine (mul r (cosine a)) (mul r (sine a))))
+
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'rectangular x))
+  (put 'real-part '(rectangular) real-part)
+  (put 'imag-part '(rectangular) imag-part)
+  (put 'magnitude '(rectangular) magnitude)
+  (put 'angle '(rectangular) angle)
+  (put 'make-from-real-imag 'rectangular
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'rectangular
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+
+;;;;;;;;;;;;;;; ploar-represented complex number ;;;;;;;;;;;;;;;;;;;
+(define (install-polar-package)
+  ;; internal procedures
+  (define (magnitude z) (car z))
+  (define (angle z) (cdr z))
+  (define (make-from-mag-ang r a) (cons r a))
+  (define (real-part z)
+    (mul (magnitude z) (cosine (angle z))))
+  (define (imag-part z)
+    (mul (magnitude z) (sine (angle z))))
+  (define (make-from-real-imag x y) 
+    (cons (sqrt-g (add (square-g x) (square-g y)))
+          (atang y x)))
+
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'polar x))
+  (put 'real-part '(polar) real-part)
+  (put 'imag-part '(polar) imag-part)
+  (put 'magnitude '(polar) magnitude)
+  (put 'angle '(polar) angle)
+  (put 'make-from-real-imag 'polar
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'polar
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+
+;;;;;;;;;;;;;; generic selectors ;;;;;;;;;;;;;;
+(define (real-part z) (apply-generic 'real-part z))
+(define (imag-part z) (apply-generic 'imag-part z))
+(define (magnitude z) (apply-generic 'magnitude z))
+(define (angle z) (apply-generic 'angle z))
+
+
+;;;;;;;;;;;;;; new added here ;;;;;;;;;;;;;;;;;;;;;;
+(define (sine x) (apply-generic 'sine x))
+(define (cosine x) (apply-generic 'cosine x))
+(define (atang x) (apply-generic 'atang x))
+(define (sqrt-g x) (apply-generic 'sqrt-g x))
+(define (square-g x) (apply-generic 'square-g x))
+
+(define (equ? x y)
+  (apply-generic 'equ? x y))
+
+(define (=zero? x)
+  (apply-generic '=zero? x))
+
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (if (need-drop? op) 
+			  (drop (apply proc (map contents args)))
+			  (apply proc (map contents args))) 
+		  (if (not (check-type-list type-tags))
+			  (error "No method for these types"
+					 (list op type-tags))
+			  (apply apply-generic
+					 (append (list op)
+							 (raise-to-highest args
+											   (find-highest-type type-tags)))))))))
+
+(define need-drop-op-list '(add sub mul div))
+
+(define (need-drop? op)
+  (memq op need-drop-op-list))
+
+(define (project x)
+  (let ((d-p (get 'drop (list (type-tag x)))))
+	(if d-p
+		(let ((dropped (d-p (contents x))))
+		  (if (equ? dropped x)
+			  (project dropped)
+			  x))
+		x)))
+
+(define (drop x)
+  (project x))
+;;;;;;; install ;;;;;;;;;;;;;;;;;;;;;;;;;;
+(install-scheme-number-package)
+(install-rational-package)
+(install-complex-package)
+(install-rectangular-package)
+(install-polar-package)
+
+(define s-1 (make-scheme-number 0))
+(define s-2 (make-scheme-number 4))
+;; (print (=zero? s-1))
+;; (print (=zero? s-2))
+;; (print (equ? s-1 0))
+;; (print (equ? s-1 s-2))
+;; (print (sine s-1))
+;; (print (sine 0))
+;; (print (atang 0))
+;; (print "sss done\n\n")
+
+(define r-1 (make-rational 0 4))
+(define r-2 (make-rational 4 1))
+;; (print (=zero? r-1))
+;; (print (=zero? r-2)) 
+;; (print (equ? r-1 0))
+;; (print (equ? r-1 r-2))
+;; (print (sine r-1))
+;; (print (cosine r-1))
+;; (print (atang r-1))
+;; (print "rrrr done\n\n")
+
+(define z-1 (make-complex-from-real-imag r-1 r-2))
+(define z-2 (make-complex-from-real-imag r-2 r-1))
+(define z-3 (make-complex-from-mag-ang r-1 r-2))
+(define z-4 (make-complex-from-mag-ang r-2 r-1))
+;; (print (=zero? z-1))
+;; (print (=zero? z-2))
+;; (print (equ? z-2 4))
+;; (print (equ? z-1 z-2))
+;; (print (equ? z-2 r-2))
+(print (add z-1 z-2))
+;; (print (add r-1 r-2))
+(print (add z-2 -4))
+(print (add z-1 r-2))
+;; add and sub for regutangular complex numbers is ok.
+
+;; can not do this because I didn't implemnet real-number 
+;; (print (real-part z-3)) ;; this one will get a error, because
+;; consine will not get an integer(actually get a "real number"
+;; and my current package can not do real * rational
+;; (print (=zero? z-3))
+;; (print (=zero? z-4))

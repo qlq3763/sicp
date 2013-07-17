@@ -1,0 +1,4 @@
+(define (invert-unit-series s)
+  (cons-stream 1 (mul-series (stream-cdr s) (invert-unit-series s))))
+
+(show-stream (invert-unit-series cosine-series) 14)

@@ -1,0 +1,13 @@
+* Lecture 1a
+1# Computer science vs computer art
+
+2# Computer science is not that much about computer, but focuses on
+how to formalize process--how to do things. And procedure--local
+prescription of process, is used to generate the process we want.
+
+3# Declarative vs Imperative knowledge.
+
+4# Techniques used to design procedure to generating complex
+processes: black-box abstraction, conventional interface, and
+metalinguistic abstraction.
+

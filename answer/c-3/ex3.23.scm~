@@ -1,0 +1,7 @@
+;; the form of each item: (data prev-ptr . next-ptr)
+;; the form of deque: 
+;; front-ptr                                rear-ptr
+;;     |                                        |
+;;    \|/                                      \|/
+;;   (item item item ...                       item)
+

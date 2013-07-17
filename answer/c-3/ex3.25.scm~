@@ -1,0 +1,47 @@
+;; what we need is a new same-key? method
+(define (make-table same-key?)
+  ;; empty key-list get false
+  (define (assoc key-list records)
+	(define (iter key-list records)
+	  (cond ((null? records) false)
+			((same-key? key-list (caar records)) (car records))
+			(else (assoc key-list (cdr records)))))
+	(if (null? key-list)
+		false
+		(iter key-list records)))
+
+  (let ((local-table (list '*table*)))
+    (define (lookup key-list)
+      (let ((record (assoc key-list (cdr local-table))))
+		(if record
+			(cdr record)
+			false)))
+
+    (define (insert! key-list value)
+      (let ((record (assoc key-list (cdr local-table))))
+		(if record
+			(set-cdr! record value)
+			(set-cdr! table
+					  (cons (cons key-list value) (cdr table)))))
+      'ok)    
+
+    (define (dispatch m)
+      (cond ((eq? m 'lookup-proc) lookup)
+            ((eq? m 'insert-proc!) insert!)
+            (else (error "Unknown operation -- TABLE" m))))
+    dispatch))
+
+
+(define (same-key? kl-1 kl-2)
+  (cond ((and (null? kl-1) (null? kl-2))
+		 true)
+		((or (not (= (length kl-1) (length kl-2)))
+			 (not (equal? (car kl-1) (car kl-2))))
+		 false)
+		(else (same-key? (cdr kl-1) (cdr kl-2)))))
+		
+(define operation-table (make-table same-key?))
+(define get (operation-table 'lookup-proc))
+(define put (operation-table 'insert-proc!))
+
+

@@ -1,0 +1,11 @@
+-*- Text -*-
+
+To use the SICP (Structure and Interpretation of Computer Programs)
+compatiblity package in MIT CScheme:
+
+  (cd "sicp")		; Where sicp is the directory containing the
+			; compatibility package.
+  (load "sbuild")
+
+Now you are in an environment that looks suspiciously like that on the
+Chipmunk computers used in the MIT 6.001 SICP course lab.

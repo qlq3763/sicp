@@ -1,0 +1,11 @@
+#lang racket
+(require (planet "sicp.ss" ("soegaard" "sicp.plt" 2 1)))
+
+;(require (only (lib "etc.ss")
+;               this-expression-source-directory))
+(require (lib "etc.ss"))
+
+(define einstein-2 
+  (load-painter 
+   (build-path (this-expression-source-directory)
+               "einstein.gif")))

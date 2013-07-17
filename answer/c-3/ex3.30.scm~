@@ -1,0 +1,14 @@
+(define (ripple-carry-adder A B S C)
+  (define (iter A B S C)
+	(let ((c-in (make-wire)))
+	  (if (null? (cdr A))
+		  (set-signal! c-in 0)
+		  (iter (cdr A) (cdr B) (cdr S) c-in))
+	  (full-adder (car A) (car B) c-in (car S) C)))
+  (if (and (> (length A) 0) 
+		   (= (length A) (length B))
+		   (= (length B) (length S)))
+	  (iter A B S C)
+	  (error "invald binary number" A B S)))
+
+;; test, todo

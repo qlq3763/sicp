@@ -1,0 +1,104 @@
+;; Most of the code of this package is the same as integer number 
+;; package. 
+
+;; First, I put integer and real number in one package called
+;; scheme numbe package. Then I found that method is messy, so 
+;; now this is the "duplicate-code" version
+
+;; Can not use attach-tag here, see notes for the reason.
+
+;; qlq
+;; June 21, 2012
+
+;;;;;;;;;;;;; real number package ;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (install-real-package)
+  ;; (define (tag x)
+  ;;   (attach-tag 'real x))
+  (define (real->complex x)
+	(make-complex-from-real-imag x 0))
+  (define (real->rational x)
+	(let ((rat (inexact->exact x)))
+	  (make-rational (numerator rat)
+					 (denominator rat))))
+  ;; interface
+  (put 'add '(real real) +)
+  (put 'sub '(real real) -)
+  (put 'mul '(real real) *)
+  (put 'div '(real real) /)
+  (put 'sine '(real) sin)
+  (put 'cosine '(real) cos)
+  (put 'atang '(real) atan)
+  (put 'sqrt-g '(real) sqrt)
+  (put 'square-g '(real) square)
+  (put 'make 'real (lambda (x) x))
+  (put 'equ? '(real real) =)
+  (put '=zero? '(real) zero?)
+  (put 'raise '(real) real->complex)
+  (put 'drop '(real) real->rational)
+  'done)
+
+(define (make-real n)
+  ((get 'make 'real) n))
+
+;; test (only for reals)
+(install-real-package)
+
+(define r-1 (make-real 0.1))
+(define r-2 (make-real 4.5))
+
+(print r-1)
+(print r-2)
+
+;; add
+(print (equ? (add r-1 r-2) 4.6))
+(print (equ? (add r-1 4.5) 4.6))
+(print (equ? (add 4.5 r-1) 4.6))
+(print (equ? (add 4.5 4.5) 9.0))
+(print "real add done\n\n")
+
+;; sub
+(print (equ? (sub r-1 r-2) -4.4))
+(print (equ? (sub r-1 4.5) -4.4))
+(print (equ? (sub 4.5 r-1) 4.4))
+(print (=zero? (sub 4.4 4.4)))
+(print "real sub done\n\n")
+
+;; mul
+(print (equ? (mul r-1 r-2) 0.45))
+(print (equ? (mul r-1 4.5) 0.45))
+(print (equ? (mul 4.5 r-1) 0.45))
+(print (equ? (mul 4.5 4.5) 20.25))
+(print "real mul done\n\n")
+
+;; div
+(print (equ? (div r-2 r-1) 45))
+(print (equ? (div r-2 0.1) 45))
+(print (equ? (div 4.5 r-2) 1.0))
+(print (equ? (div 4.5 4.5) 1.0))
+(print "real div done\n\n")
+
+
+;; sine
+(print (sine r-1))
+(print (sine 0.1))
+(print "real sine done\n\n")
+
+;; cosine
+(print (cosine r-1))
+(print (cosine 0.1))
+(print "real cosine done\n\n")
+
+;; atang
+(print (atang r-1))
+(print (atang 0.1))
+(print "real atang done\n\n")
+
+;;sqrt-g
+(print (sqrt-g r-1))
+(print (sqrt-g 0.1))
+(print "real sqrt-g done\n\n")
+
+;; square-g
+(print (square-g r-2))
+(print (square-g 4.5))
+(print "real square-g done\n\n")

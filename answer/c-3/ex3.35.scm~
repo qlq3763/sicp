@@ -1,0 +1,11 @@
+(define (square a b)
+  (define (process-new-value)
+	(if (has-value? b)
+		(if (< (get-value b) 0)
+			(error "square less then 0 -- SQUARE" (get-value b))
+			(set-value! a (sqrt b) me))
+		(if (has-value? a)
+			(set-value! b (square a) me))))
+
+  (define (process-forget-value) 
+	

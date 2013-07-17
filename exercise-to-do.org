@@ -1,0 +1,18 @@
+* Chapter 1: Building Abstractions with Procedures
+All is done. Cool!
+
+* Chapter 2: Building Abstractions with Data
+Exercise 2.43 : don't know why I skipped this one. Or I've forgotten
+where I wrote the answer.
+
+Exercise 2.87--2.97: don't have enough time, too difficult, lazy, and
+all excuses.
+
+* Chapter 3: Modularity, Objects, and State
+Ongoing.
+
+* Chapter 4: Metalinguistic Abstraction
+Not started.
+
+* Chapter 5: Computing with Register Machines
+Not started.

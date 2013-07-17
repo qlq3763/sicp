@@ -1,0 +1,17 @@
+(define f
+  (let ((state 0))
+	(lambda (x)
+	  (cond ((= x 0)
+			 (set! state 1)
+			 0)
+			(else
+			 (if (= state 1)
+				 0
+				 1))))))
+
+;; (print (+ (f 0) (f 1)))
+(print (f 1))
+(print (f 1))
+(print (f 0))
+(print (f 1))
+(print (f 0))
