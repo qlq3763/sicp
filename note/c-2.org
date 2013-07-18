@@ -1,0 +1,209 @@
+1# Why do we want compound data in a programming language? For the
+same reason that we want compound procedures: to elevate the
+conceptual level at which we can design our programs, to increase the
+modularity of our designs, and to enhance the expressive power of our
+language. Just as the ability to define procedures enables us to deal
+with processes at a higher conceptual level than that of the primitive
+operations of the language, the ability to construct compound data
+objects enables us to deal with data at a higher conceptual level than
+that of the primitive data objects of the language.
+
+2# The general technique of isolating the parts of a program that deal
+with how data objects are represented from the parts of a program that
+deal with how data objects are used is a powerful design methodology
+called data abstraction. 
+
+3# One key idea in dealing with compound data is the notion of
+closure--that the glue we use for combining data objects should allow
+us to combine not only primitive data objects, but compound data
+objects as well. Another key idea is that compound data objects can
+serve as conventional interface for combining program modules in
+mix-and-match ways. 
+
+4# We will find that, just as a given numerical function can be
+computed by many different computational processes, there are many
+ways in which a given data structure can be represented in terms of
+simpler objects, and the choice of representation can have significant
+impact on the time and space requirements of processes that manipulate
+the data.
+
+* 2.1 Introduction to Data Abstraction
+1# That is, the details of how the procedure was implemented could be
+suppressed, and the particular procedure itself could be replaced by
+any other procedure with the same overall behavior. In other words, we
+could make an abstraction that would separate the way the procedure
+would be used from the details of how the procedure would be
+implemented in the terms of more primitive procedures. The analogous
+notion for compound data is called data abstraction. Data abstraction
+is a methodology that enables us to isolate how a compound data object
+is used from the details of how it is constructed from more primitive
+data objects.
+
+2# Our programs should use data in such a way as to make no
+assumptions about the data that are not strictly necessary for
+performing the task at hand. At the same time, a "concrete" data
+representation is defined independent of the programs that use the
+data. The interface between these two parts of our system will be a
+set of procedures, called selectors and constructors, that implement
+the abstract data in terms of the concrete representation.
+
+3# We are using here a powerful strategy of synthesis: wishful thinking.
+
+4# In general, the underlying idea of data abstraction is to identify
+for each type of data a basic set of operations in terms of which all
+manipulations of data objects of that type will be expressed, and then
+to use only those operations in manipulating the data.
+
+5# Constraining the dependence on the representation to a few
+interface procedures helps us design programs as well as modify them,
+because it allow us to maintain the flexibility to consider alternate
+implementations. 
+
+6# In general, we can think of data as defined by some collection of
+selectors and constructors, together with specified conditions that
+these procedures must fulfill in order to be a valid representation.
+
+7# This example(p86) also demonstrates that the ability to manipulate
+procedures as objects automatically provides the ability to represent
+compound data. This may seem curiosity now, but procedural
+representation of data will play a central role in our programming
+repertoire. 
+
+8# Interesting Examples: 
+ 1. rational number: simple and elegant.
+ 2. (p86)procedural representation of data: cool, never seen this
+    before.
+ 3. interval arithmetic: never think about this kind of problem
+    before, good example.
+
+9# Interesting Exercises:
+ 1. Exercise 2.4: still procedural representation of data.
+ 2. Exercise 2.6: wow, procedural arithmetic.
+ 3. Exercise 2.16: Understanding the underlying differences between
+    interval arithmetic and exact-number arithmetic, some of the basic
+    laws/rules we take for granted are no longer valid for interval
+    arithmetic.
+
+* 2.2 Hierarchical Data and the Closure Property
+1# In general, an operation for combining data objects satisfies the
+closure property if the results of combining things with that
+operation can themselves be combined using the same operation.
+
+2# Be careful not to confuse the expression (list 1 2 3 4) with the
+list (1 2 3 4), which is the result obtained when the expression is
+evaluated. Attempting to evaluate the expression (1 2 3 4) will signal
+an error when the interpreter tries to apply 1 to the arguments 2, 3,
+and 4. 
+
+3# sequence as conventional interface:
+ 1. The use of pairs to represent sequences of elements as lists is
+    accompanied by conventional programming techniques for
+    manipulating lists by successively "cdring down" the lists.
+ 2. Another conventional programming technique is to "cons up" an
+    answer list while cdring down a list.
+ 3. (p105)Our two procedures decompose the computations in a different
+    way, spreading the enumeration over the program and mingling it
+    with the map, the filter, and the accumulation. If we could
+    organize our programs to make the signal-flow structure manifest
+    in the procedures we write, this would increase the conceptual
+    clarity of the resulting code. The key to organizing programs so
+    as to more clearly reflect the signal-flow structure is to
+    concentrate on the "signals" that flow from one stage in the
+    process to the next. If we represent these signals as lists, then
+    we can use list operations to implement the processing at each of
+    the stages.
+ 4. The value of expressing programs as sequence operations is that
+    this helps us make program designs that are modular, that is,
+    designs that are constructed by combining relatively independent
+    pieces.
+ 5. Sequences, implemented here as lists, serve as a conventional
+    interface that permits to combine processing
+    modules. Additionally, when we represent structures as sequences,
+    we have localized the data-structure dependencies in our programs
+    to a small number of sequence operations.
+
+4# Map is an important construct, not only because it captures a
+common pattern, but because it establishes a higher level of
+abstraction in dealing with lists. In the original definition of
+scale-list, the recursive structure of the program draws attention to
+the element-by-element processing of the list. Defining scale-list in
+terms of map suppresses that level of detail and emphasizes that
+scaling transforms a list of elements to a list of results. The
+difference between the two definitions is not that the computer is
+performing a different process(it isn't) but that we think about the
+process differently. In effect, map helps establish an abstraction
+barrier that isolates the implementation of procedures that transform
+list from the details of how the elements of the list are extracted
+and combined. This abstraction gives us the flexibility to change the
+low-level details of how sequences are implemented, while preserving
+the conceptual framework of operations that transform sequences to
+sequences. 
+
+5# We will implement the painter operations as procedures. This means
+that we don't need a special abstraction mechanism in the picture
+language: Since the means of combination are ordinary procedures, we
+automatically have the capability to do anything with painter
+operations that we can do with procedures.
+
+6# In addition to abstracting patterns of combining painters, we can
+work at a higher level, abstracting patterns of combining painter
+operations.
+
+7# stratified design: the notation that a complex system should be
+structured as a sequence of levels that are described using a sequence
+of languages. Each level is constructed by combing parts that are
+regarded as primitive at that level, and the parts constructed at each
+level are used as primitives at the next level. The languages used at
+each level of a stratified design has primitives, means of
+combination, and means of abstraction appropriate to that level of
+detail.
+
+ 1. Stratified design helps make programs robust, that is, it makes it
+    likely that small changes in a specification will require
+    correspondingly small changes in the program.
+ 2. In general, each level of a stratified design provides a different
+    vocabulary for expressing the characteristics of the system, and a
+    different kind of ability to change it.
+
+8# Interesting Examples: 
+ 1. (list <a1> <a2> ... <an>) is equivalent to:
+    (cons <a1> (cons <a2> (cons ... (cons <an> nil) ... )))
+ 2. map over lists, map over trees
+ 3. accumulate, flatmap--(accumulate append nil map)
+ 4. permutations using nested mappings
+ 5. Picture Language:
+  1>. frame coordination map: unit square to frame square
+  2>. transform painter: transforms the frame and calls the original
+  painter on the transformed frame.
+
+9# Interesting Exercises:
+ 1. Exercise 2.18: feel the differences between iterative and
+    recursive implementation: I think the iterative one is bottom-up
+    method, while the recursive one is a top-down method. By using the
+    iterative implementation, we first get the "nil" value as the
+    initial result, then we increase the partial result at each step
+    until we reach the final result. By using the recursive
+    implementation, we first assume that we've gotten a partial result
+    and then combine the partial result with what we get at this
+    current step to get the final result. 
+ 2. Exercise 2.20: dotted-tail notation, for arbitrary numbers of
+    arguments.
+ 3. Exercise 2.22: "kind of like 2.18", focus more specifically the
+    differences between 'cons' and 'append'.
+ 4. Exercise 2.27: deep-reverse, cool! Think hierarchically. 
+ 5. Exercise 2.29: still find it hard to think hierarchically.
+ 6. Exercise 2.31: tree-map, interesting recursive pattern.
+ 7. Exercise 2.32: subsets.
+ 8. Exercise 2.33: use accumulate to implement map, append, and
+    length.
+ 9. Exercise 2.35: still that interesting tree recursive pattern.
+ 10. Exercise 2.36: simpler than thought, but interesting.
+ 11. Exercise 2.37: how to solve hard problem by building a solution
+     based on the previous work.
+ 12. Exercise 2.38: as intuition tells me, fold-left is easier to
+     implement using iterative process, while fold-right is easier to
+     implement using recursive process.
+ 13. Exercise 2.39: interesting, have not thought about this
+     before. have not thought that deep.
+ 14. Exercise 2.42: eight-queens puzzle 
+ 15. Exercise 2.42: little change, huge efficiency effect.

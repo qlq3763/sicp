@@ -1,0 +1,102 @@
+1# "I think that it's extraordinarily important that we in computer
+science keep fun in computing. When it started out, it was awful lot
+of fun. Of course, the paying customers  got shafted every now and
+then, and after a while we began to take their complaints
+seriously. We began to feel as if we really were responsible for the
+successful, error-free perfect use of these machines. I don't think we
+are. I think we are responsible for stretching them, setting them off
+in new directions, and keeping fun in the house. I hope the field of
+computer science never loses its sense of fun. Above all, I hope we
+don't become missionaries. Don't feel as if you're Bible salesman. The
+world has too many of those already. What you know about computing
+other people will learn. Don't feel as if the key to successful
+computing is only in your hands. What's in your hands, I think and
+hope, is intelligence: the ability to see the machine as more than
+when you were first led up to it, that you can make it more."
+--- Alan J.Perlis
+
+2# To appreciate programming as an intellectual activity in its own
+right you must turn to computer programming; you must read and write
+computer programs--many of them. It doesn't matter what the programs
+are about or what applications they serve. What does matter is how
+well they perform and how smoothly they fit with other programs in the
+creation of still greater programs. The programmer must seek both
+perfection of part and adequacy of collection.
+
+3# Our traffic with the subject matter of this book involves us with
+three foci of phenomena: the human mind, collections of computer
+programs, and the computer. Every computer program is a model, hatched
+in the mind, of a real or mental process. These processes, arising
+from human experience and thought, are huge in number, intricate in
+detail, and at any time only partially understood. They are modeled to
+our permanent satisfaction rarely by our computer programs. Thus even
+though our programs are carefully handcrafted discrete collection of
+symbols, mosaics of interlocking functions, they continually evolve: we
+change them as perception of the model deepens, enlarges, generalizes
+until the model ultimately attains a metastable place within still
+another model with which we struggle. The source of the exhilaration
+associated with computer programming is the continual unfolding within
+the mind and on the computer of mechanisms expressed as programs and
+the explosion of perception they generate. If art interprets our
+dreams, the computer executes them in the guise of programs.
+
+4# Since large programs grow from small ones, it is crucial that we
+develop an arsenal of standard program structures of whose correctness
+we have become sure--we call them idioms--and learn to combine them
+into larger structures using organizational techniques of proven value.
+
+5# More than anything else, the uncovering and mastery of powerful
+organizational techniques accelerates our ability to create large,
+significant programs.
+
+6# A programmer should acquire good algorithms and idioms. Even though
+some programs resist precise specifications, it is the responsibility
+of the programmer to estimate, and always to improve, their
+performance.
+
+7# After all, the critical programming concerns of software
+engineering and artificial intelligence tend to coalesce as the systems
+under investigation become larger.
+
+8# Invent and fit; have fits and reinvent!
+
+9# Our design of this introductory computer-science subject reflects
+two major concerns. First, we want to establish the idea a computer
+programming language is not just a way of getting a computer to
+perform operations but rather that it is a novel formal medium for
+expressing ideas about methodology. Thus, programs must be written for
+people to read, and only incidentally for machines to execute. Second,
+we believe that the essential material to be addressed at this level
+is not the syntax of particular programming-language constructs, nor
+clever algorithms for computing particular functions efficiently, not
+even the mathematical analysis of algorithms and the foundations of
+computing, but rather the techniques used to control the intellectual
+complexity of large software systems.
+
+10# These skills are by no means unique to computer programming. The
+techniques we teach and draw upon are common to all of engineering
+design. We control complexity by building abstractions that hide details
+when appropriate. We control complexity by establishing conventional
+interfaces that enable us to construct systems by combining standard,
+well-understood pieces in a "mix and match" way. we control complexity
+by establishing new languages for describing a design, each of which
+emphasizes particular aspects of the design and deemphasizes others.
+
+11# Underlying our approach to this subject is our conviction that
+"computer science" is not a science and that its significance has
+little to do with computers. The computer revolution is a revolution
+in the way we think and in the way we express what we think. The
+essence of this change is the emerge of that might be called
+procedural epistemology--the study of the structure of knowledge from
+an imperative point of view, as opposed to the more declarative point
+of view taken by classical mathematical subjects. Mathematics provides
+a framework for dealing precisely with notions of "what is."
+Computation provides a framework for dealing precisely with notions of
+"how to."
+
+12# One should avoid complexities of control and concentrate on
+organizing the data to reflect the real structure of the world being
+modeled.
+
+13# Computation provides a means of expression for exploring ideas
+that would be otherwise be too complex to deal with precisely.
