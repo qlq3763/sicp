@@ -34,11 +34,15 @@
 	(< (abs (- (square guess) x)) 0.001))
   (sqrt-iter 1.0 x))
 
-;; small numbers
 (print "\n.................")
-
+;; small number
 (define n1 0.000001)
 (print (original-sqrt n1))
 (print (new-sqrt n1))
+
+;; big number
+(define n2 10000000000000)
+;; (print (original-sqrt n2))
+(print (new-sqrt n2))
 
 (print "\n.................")

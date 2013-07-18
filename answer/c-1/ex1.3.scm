@@ -14,12 +14,9 @@
   (- (+ (square a) (square b) (square c))
 	 (square (smallest-of-three))))
 
-(print "\n..........")
+(assert '(= (sum-larger-v1 1 2 3) 13))
+(assert '(= (sum-larger-v2 1 2 3) 13))
 
-(print (= (sum-larger-v1 1 2 3) 13))
-(print (= (sum-larger-v2 1 2 3) 13))
+(assert '(= (sum-larger-v1 1 2 2) 8))
+(assert '(= (sum-larger-v2 1 2 2) 8))
 
-(print (= (sum-larger-v1 1 2 2) 8))
-(print (= (sum-larger-v2 1 2 2) 8))
-
-(print "..........")
