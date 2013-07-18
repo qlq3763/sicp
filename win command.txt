@@ -1,1 +1,2 @@
-mit-scheme --band D:\mit-scheme\lib\all.com
+mit-scheme --band D:/mit-scheme/lib/all.com --library D:/mit-scheme/lib
+
