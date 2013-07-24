@@ -23,3 +23,17 @@
   (cond ((= times 0) true)
 	((miller-rabin-test n) (fast-prime-2? n (- times 1)))
 	(else false)))
+
+(assert '(fast-prime-2? 2 4))
+(assert '(fast-prime-2? 3 4))
+(assert '(fast-prime-2? 19 4))
+(assert '(not (fast-prime-2? 21 4)))
+(assert '(not (fast-prime-2? 27 4)))
+
+;; Carmichael numbers
+(assert '(not (fast-prime-2? 561 4)))
+(assert '(not (fast-prime-2? 1105 4)))
+(assert '(not (fast-prime-2? 1729 4)))
+(assert '(not (fast-prime-2? 2465 4)))
+(assert '(not (fast-prime-2? 2821 4)))
+(assert '(not (fast-prime-2? 6601 4)))

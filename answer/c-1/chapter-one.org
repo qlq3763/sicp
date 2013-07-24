@@ -204,6 +204,7 @@ http://community.schemewiki.org/?sicp-ex-1.7
 (inc (inc 7))
 (inc 8)
 9
+recursive
 
 (define (+ a b)
   (if (= a 0)
@@ -215,6 +216,7 @@ http://community.schemewiki.org/?sicp-ex-1.7
 (+ 1 8)
 (+ 0 9)
 9
+iterative
 
 ** Exercise 1.10
 (A 1 10) -> 1024
@@ -258,23 +260,24 @@ is an integer, and (iter 2 1 0 (- n 2)) is where this assumption
 made. The initial values 2, 1, 0 is correct only when n is
 integer. So, to make the iterative version can deal with larger than 3
 non-integer as the recursive version does, giving better initials to
-iter seems like a solution, and the following gives one such improved
-version:
+iter seems like a solution, and the following one gives one such
+improved version:
 
 (define (f-iter-2 n)
-  (define (iter f-n-1 f-n-2 f-n-3 counter)
-    (define (fn a b c) (+ a (* 2 b) (* 3 c)))
+  (define (fn a b c) (+ a (* 2 b) (* 3 c)))
+
+  (define (get-init n base)
+    (+ (- n (floor n))
+       base))
+
+  (define (iter f-n-1 f-n-2 f-n-3 counter)   
     (if (< counter 1) ;; a little subtle here
 	f-n-1
 	(iter (fn f-n-1 f-n-2 f-n-3)
 	      f-n-1
 	      f-n-2
 	      (- counter 1))))
-
-  (define (get-init n diff)
-    (+ (- n (floor n))
-       diff))
-
+  
   (cond ((< n 3)
 	 n)
 	((integer? n)
@@ -283,6 +286,23 @@ version:
 		    (get-init n 1)
 		    (get-init n 0)
 		    (- n 2)))))
+
+(assert '(float=? (f-rec 0.5) 0.5))
+(assert '(float=? (f-rec 3.5) 7.0))
+(assert '(float=? (f-rec 4.5) 16.5))
+
+(assert '(= (f-rec 3) 4))
+(assert '(= (f-rec 4) 11))
+
+(assert '(float=? (f-rec 0.5) (f-iter-2 0.5)))
+(assert '(float=? (f-rec 3.5) (f-iter-2 3.5)))
+;; (assert '(float=? (f-rec 3.5) (f-iter 3.5)))
+(assert '(float=? (f-rec 4.5) (f-iter-2 4.5)))
+
+(assert '(= (f-rec 3) (f-iter 3)))
+(assert '(= (f-rec 3) (f-iter-2 3)))
+(assert '(= (f-rec 4) (f-iter 4)))
+(assert '(= (f-rec 4) (f-iter-2 4)))
 
 ** Exercise 1.12
 (define (pascal-trig row col)
@@ -304,7 +324,7 @@ Fib(n+1)
 = [(a^(n-1))*(a+1) - (b^(n-1))*(b+1)]/sqrt5
 = (a^(n+1) - b^(n+1))
 Done.
-In the last step, the following fact is used:
+In the last step, the following facts are used:
 a^2 = a + 1, b^2 = b + 1.
 
 Now use this to get what we want, from above, we know 
@@ -329,7 +349,7 @@ few steps to illustrate what's going on.
 (cc 11 3)   (cc -14 4)--end here ;level three
 (cc 11 2)   (cc 1 3) ;level four
 (cc 11 1) (cc 6 2) (cc 1 2) (cc -9 3)--end here ;level five
-(cc 10 1) (cc 11 0)--0 cc(1 2) cc(6 1) cc(1 2) ;; level six
+(cc 10 1) (cc 11 0)--0 cc(1 2) cc(6 1) cc(1 2) (cc -4 2)--end here; level six
 .
 .
 .
@@ -393,7 +413,7 @@ Five times.
 
 b.
 lg(a), because the number of p applied is of order
-lg(a)(ceil(log3(10a)) is the accurate number), and the context of
+lg(a)(ceil(log3(10a)) is the accurate number), and the number of
 previous p's need to stored.
 
 ** Exercise 1.16
@@ -409,8 +429,15 @@ previous p's need to stored.
 		      (* a b)))))
   (iter b n 1))
 
-This implementation seems simple. But I don't the process of writing
-it simple, at least for me.  I actually wrote this correct version out
+(assert '(= (fast-expt-iter 2 3) 8))
+(assert '(= (fast-expt-iter 2 0) 1))
+(assert '(= (fast-expt-iter 2 7) 128))
+(assert '(= (fast-expt-iter 2 1) 2))
+(assert '(= (fast-expt-iter 2 2) 4))
+(assert '(= (fast-expt-iter 2 8) 256))
+
+This implementation seems simple. But I don't understand the process 
+, at least for me.  I actually wrote this correct version out
 before I could make myself believe that this is what I want. The else
 part is easy to understand, however, while I am write the "even?
 part", I am thinking how could the product be correct answer when exp
@@ -418,9 +445,9 @@ part", I am thinking how could the product be correct answer when exp
 
 Let me write down the process from being confused to
 unconfused. First, I think if n is 2^m, then, the product returned
-when exp = 0 will be 1. The I realized(after some stupid tries)that
+when exp = 0 will be 1. Then I realized(after some stupid tries)that
 for exp to be 0, its value must come through 1, that's when product
-get its correct value for n is 2^m. After this "aha", the rest now
+get its correct value when n is 2^m. After this "aha", the rest now
 really seems straight.
 
 ** Exercise 1.17
@@ -437,6 +464,12 @@ really seems straight.
 (define (halve n) (/ n 2))
 (define (double n) (* n 2))
 
+(assert '(= (mul 3 4) 12))
+(assert '(= (mul 4 0) 0))
+
+(assert '(= (fast-mul-rec 3 4) 12))
+(assert '(= (fast-mul-rec 4 0) 0))
+
 ** Exercise 1.18
 ;; invariant ab+product
 (define (fast-mul-iter a b)
@@ -448,6 +481,9 @@ really seems straight.
 	  (else (iter a (- b 1) (+ product a)))))
   (iter a b 0))
 
+(assert '(= (fast-mul-iter 3 4) 12))
+(assert '(= (fast-mul-iter 4 0) 0))
+
 ** Exercise 1.19
 Tpq(a, b) = (bq + aq + ap, bp + aq)
 Tpq(bq+aq+ap, bp+aq) = 
@@ -455,7 +491,7 @@ Tpq(bq+aq+ap, bp+aq) =
 
 Tp'q'(a, b) = (bq' + aq' + bp', bp' + aq')
 
-For Tp'q' to have effects of two Tpq, 
+For Tp'q' to have effects of two application of Tpq, 
 bp'+aq'=(bp+aq)p + (bq+aq+ap)q = b(p^2 + q^2) + a(q^2 + 2pq),
 so, p' = (p^2 + q^2), q' = (q^2 + 2pq).
 
@@ -480,6 +516,14 @@ Now the implementation:
                         p
                         q
                         (- count 1)))))
+
+(assert '(= (fib 0) 0))
+(assert '(= (fib 1) 1))
+(assert '(= (fib 2) 1))
+(assert '(= (fib 3) 2))
+(assert '(= (fib 4) 3))
+(assert '(= (fib 5) 5))
+(assert '(= (fib 6) 8))
 
 ** Exercise 1.20
 Normal order:
@@ -545,7 +589,7 @@ larger ones, but I am lazy, sorry.
         ((divides? test-divisor n) test-divisor)
         (else (find-divisor n (next test-divisor)))))
 
-his refined one is about 1.5 times faster, not 2. The reason, I think
+this refined one is about 1.5 times faster, not 2. The reason, I think
 is that the execution of next-divisor takes more time than just a
 plain plus operation takes.
 
@@ -558,19 +602,21 @@ I think the answer is that she is not correct in all the cases. For
 the original version could keep the exponential not much larger than
 m. But with this revised version the exponential may become such large
 that it overflows. Though Scheme support arbitrary integer(at least it
-seems so to me), too represent such a huge exponential may need more
-memory the machine can afford to supply, this may seems ridiculous,
+seems so to me), represent such a huge exponential may need more
+memory than the machine can afford, this may seems ridiculous,
 but theoretically this situation could happen.
 
 ** Exercise 1.26
-The original one compute (expmod base (/exp 2) m) once, the version of
+The original one computes (expmod base (/exp 2) m) once, the version of
 Louis compute this twice.
 The original run time is, let's say, t(n) for (expmod base n m), then 
 t(n) = t(n/2) + O(1), 
 and the run time for the revised version is
 t(n) = 2t(n/2) + O(1).
-Apply the "master theory" to this two recursion, we will get what Eva
+Apply the "Master theorem"[1] to this two recursion, we will get what Eva
 said.
+
+[1] http://en.wikipedia.org/wiki/Master_theorem
 
 ** Exercise 1.27
 ;; (fast-prime? 561 4)
@@ -625,10 +671,10 @@ during this process. One is I cann't think out how to avoid evaluate
 form "let", and just hung to it. A long while was past before I
 figured out that sub-procedures can achieve this too. The second
 mistake is I spent too much effort to avoid the redundant evaluation,
-which lead me to a wrong program, a typical scenario of premature
+which lead me to a wrong implementation, a typical scenario of premature
 optimization. 
 
-Remember, make it correct first, then make it fast. 
+Remember, first make it correct, then make it fast. 
 
 * 1.3 Formulating Abstractions with Higher-Order Procedures
 
@@ -644,8 +690,7 @@ Remember, make it correct first, then make it fast.
   ( * (/ h 3.0)
       (sum term 0 next n)))
 
-The hard part for me is how to define term, how to specify the range
-to make the work procedure term need to do easier. The
+The hard part for me is how to define term, how to specify the range. The
 observation comes from the fact that, I already had a, b and h, what
 else does I need to compure a "term"? The answer is an index k, then I
 got the range I need.

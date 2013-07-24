@@ -1,0 +1,18 @@
+(define (carm? n)
+  (and (carm-iter n 2)
+       (not (prime? n)))) ;; assure not a "real" prime
+
+(define (carm-iter n base)
+  (cond ((= base n)
+	 true)
+	((= (expmod base n n)
+	    base)
+	 (carm-iter n (+ base 1)))
+	(else false)))
+
+;; (fast-prime? 561 4)
+;; (fast-prime? 1105 4)
+;; (fast-prime? 1729 4)
+;; (fast-prime? 2465 4)
+;; (fast-prime? 2821 4)
+;; (fast-prime? 6601 4)

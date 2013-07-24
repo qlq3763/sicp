@@ -11,3 +11,8 @@
 
 (define (prime? n)
   (= n (smallest-divisor n)))
+
+(print "\n")
+(print (smallest-divisor 199))
+(print (smallest-divisor 1999))
+(print (smallest-divisor 19999))

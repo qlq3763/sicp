@@ -20,3 +20,12 @@
 
 (define (halve n) (/ n 2))
 (define (double n) (* n 2))
+
+(assert '(= (mul 3 4) 12))
+(assert '(= (mul 4 0) 0))
+
+(assert '(= (fast-mul-rec 3 4) 12))
+(assert '(= (fast-mul-rec 4 0) 0))
+
+(assert '(= (fast-mul-iter 3 4) 12))
+(assert '(= (fast-mul-iter 4 0) 0))

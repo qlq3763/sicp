@@ -11,3 +11,5 @@
 			 (abort))
 	  true))
 
+(define (float=? f1 f2)
+  (< (abs (- f1 f2)) 0.00001))
