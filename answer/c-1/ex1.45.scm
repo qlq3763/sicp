@@ -4,6 +4,8 @@
   (fixed-point ((repeated average-damp times) x-n-1)
 	       1.0))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (define (average-damp f)
   (lambda (x) (average x (f x))))
 
@@ -26,3 +28,11 @@
 
 (define (average x y)
   (/ (+ x y) 2))
+
+(print "")
+(print (nth-root 4 2))
+(print (nth-root 8 3))
+(print (nth-root 16 4))
+(print (nth-root 32 5))
+(print (nth-root 64 6))
+(print (nth-root 128 7))

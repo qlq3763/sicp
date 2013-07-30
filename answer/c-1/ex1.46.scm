@@ -1,8 +1,8 @@
 (define (iterative-improve good-enough? improve)
   (define (iter guess)
-      (if (good-enough? guess)
-	  guess
-	  (iter (improve guess))))
+	(if (good-enough? guess)
+		guess
+		(iter (improve guess))))
   iter)
 
 (define (sqrt x)
@@ -22,3 +22,7 @@
 (define (cubic-root x)
   (fixed-point (lambda (y) (average y (/ x (square y))))
 	       1.0))
+
+(print "")
+(print (sqrt 9))
+(print (cubic-root 27))

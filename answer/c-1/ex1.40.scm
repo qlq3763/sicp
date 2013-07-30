@@ -1,3 +1,13 @@
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x)
+				 (* a x x)
+				 (* b x)
+				 c)))
+
+(define (cubic-zero a b c)
+  (newtons-method (cubic a b c) 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (deriv g)
   (lambda (x)
     (/ (- (g (+ x dx)) (g x))
@@ -11,16 +21,6 @@
 (define (newtons-method g guess)
   (fixed-point (newton-transform g) guess))
 
-
-(define (sqrt x)
-  (newtons-method (lambda (y) (- (square y) x))
-                  1.0))
-
-(define (cubic a b c)
-  (lambda (x) (+ (* x x x)
-		 (* a x x)
-		 (* b x)
-		 c)))
-
-(define (cubic-zero a b c)
-  (newtons-method (cubic a b c) 1))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(print (cubic-zero 3 2 1))
+(print ((cubic 3 2 1) (cubic-zero 3 2 1)))

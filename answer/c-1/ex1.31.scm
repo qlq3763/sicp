@@ -34,9 +34,16 @@
   (* 4.0 (pi-div-4 n)))
 
 
-(define (product term a next b)
+(define (product-iter term a next b)
   (define (iter a result)
     (if (> a b)
 	result
 	(iter (next a) (* (term a) result))))
   (iter a 1))
+
+(define (identity x) x)
+
+(print "")
+(print (pi 1000))
+(assert '(= (product-iter identity 1 inc 4) 24))
+(assert '(= (product identity 1 inc 4) 24))

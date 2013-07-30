@@ -791,23 +791,20 @@ b.
   (iter a null-value))
 
 a.
-(define (next n) (+ n 1))
-
 (define (sum-square-prime a b)
   (filtered-accumulate prime? + 0 
-		       square a next b))
+		       square a inc b))
 
 b.
 (define (product-relative-prime n)
-  (define (term a) a)
   (define (relative-prime? a)
     (= (gcd n a) 1))
   (filtered-accumulate relative-prime? * 1
-		       term 1 next n))
-
+		       identity 1 inc n))
+		       
 ** Exercise 1.34
 The interpreter will give an error. The evaluation process generated
-by using substitution model:
+using substitution model:
 (f f) -> (f 2) -> (2 2) -> Error.
 
 ** Exercise 1.35
@@ -903,6 +900,17 @@ trapped me in for a while.
 			 (- (double-minus-one i) result)))))) 
   (iter k 0))
 
+;; get this one on the second try
+(define (tan-cf-v2 x k)
+  (define (n i)
+	(if (= i 1)
+		x
+		(- (square x))))
+
+  (define (d i) (- (* 2 i) 1))
+
+  (cont-frac n d k))
+
 ** Exercise 1.40
 (define (cubic a b c)
   (lambda (x) (+ (* x x x)
@@ -919,7 +927,7 @@ trapped me in for a while.
 
 (((double (double double)) inc ) 5) -> 21
 First, (double double) means apply a function four times, which is
-illustrated by the procedure four defined above. 
+illustrated by the procedure "four" defined above. 
 
 Second, ((double four) f) means (four (four f)) -> (four ffff) -> End.
 
