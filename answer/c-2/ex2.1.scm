@@ -1,3 +1,6 @@
+;; the sign of n deos not matter, think about it.
+;; you can list all the four possible cases and you
+;; can see that only the sign of d matters
 (define (make-rat n d)
   (if (> d 0)
       (cons n d)
@@ -17,3 +20,8 @@
   (display (numer x))
   (display "/")
   (display (denom x)))
+
+(print-rat (make-rat 3 4))
+(print-rat (make-rat 3 -4))
+(print-rat (make-rat -3 4))
+(print-rat (make-rat -3 -4))

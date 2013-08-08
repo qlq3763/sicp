@@ -18,11 +18,11 @@
 
 (define (midpoint-segment s)
   (let ((p-s (start-segment s))
-	(p-e (end-segment s)))
+		(p-e (end-segment s)))
     (make-point (average (x-point p-s)
-			 (x-point p-e))
-		(average (y-point p-s)
-			 (y-point p-e)))))
+						 (x-point p-e))
+				(average (y-point p-s)
+						 (y-point p-e)))))
 
 (define (print-point p)
   (newline)
@@ -31,9 +31,6 @@
   (display ",")
   (display (y-point p))
   (display ")"))
-
-(define (average x y)
-  (/ (+ x y) 2))
 
 (define p-s (make-point 2 4))
 (define p-e (make-point 4 2))
