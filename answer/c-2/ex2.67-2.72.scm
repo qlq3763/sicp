@@ -1,4 +1,3 @@
-
 ;; representing
 
 (define (make-leaf symbol weight)
@@ -57,6 +56,7 @@
         (else (cons (car set)
                     (adjoin-set x (cdr set))))))
 
+;; insertion sort
 (define (make-leaf-set pairs)
   (if (null? pairs)
       '()
@@ -76,8 +76,13 @@
                                    (make-leaf 'C 1)))))
 
 (define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
-;; (print sample-tree)
-;; (print sample-text)
+
+(newline)
+(print "ex2.67")
+(print sample-tree)
+(print sample-message)
+(print (decode sample-message sample-tree))
+(print "ex2.67 done\n\n")
 ;; Message: (a d a b b c a)
 
 ;; EXERCISE 2.68
@@ -95,18 +100,23 @@
 (define (encode-symbol symbol tree)
   (define (encode-valid-symbol symbol tree)
     (if (leaf? tree) ; if something wrong, should not reach here
-	'()
-	(let ((left-symbols (symbols (left-branch tree))))
-	  (if (member? symbol left-symbols)
-	      (cons 0 (encode-valid-symbol symbol (left-branch tree)))
-	      (cons 1 (encode-valid-symbol symbol (right-branch tree)))))))
+		'()
+		(let ((left-symbols (symbols (left-branch tree))))
+		  (if (member? symbol left-symbols)
+			  (cons 0 (encode-valid-symbol symbol (left-branch tree)))
+			  (cons 1 (encode-valid-symbol symbol (right-branch tree)))))))
 
   (if (member? symbol (symbols tree))
       (encode-valid-symbol symbol tree)
       (error "invalid symbol" symbol)))
 
+(print "ex2.68")
 (define sample-text (decode sample-message sample-tree))
-;; (print (equal? (encode sample-text sample-tree) sample-message))
+(define encoded-message (encode sample-text sample-tree))
+(print encoded-message)
+(print sample-message)
+(assert '(equal? encoded-message sample-message))
+(print "ex2.68 done\n\n")
 
 ;; EXERCISE 2.69
 (define (generate-huffman-tree pairs)
@@ -116,13 +126,15 @@
   (if (= (length pair-set) 1)
       (car pair-set)
       (let ((merged (make-code-tree (car pair-set) (cadr pair-set)))
-	    (rest (cddr pair-set)))
-	(successive-merge (adjoin-set merged rest)))))
+			(rest (cddr pair-set)))
+		(successive-merge (adjoin-set merged rest)))))
 
+(print "ex2.69")
 (define test-output (generate-huffman-tree '((a 4) (b 2) (c 1) (d 1))))
-;; (print test-output)
-;; (print sample-tree)
-;; (print (equal? sample-tree test-output))
+(print test-output)
+(print sample-tree)
+(print (equal? sample-tree test-output))
+(print "ex2.69 done\n\n")
 
 ;; Exercise 2.70
 (define rock-song-pairs '((a 2) (boom 1) (get 2) (job 2) 
@@ -135,6 +147,7 @@
 			       Wah yip yip yip yip yip yip yip yip yip
 			       Sha boom))
 
+(print "ex2.70")
 (print rock-song-pairs)
 (print rock-song-lyrics)
 
@@ -144,9 +157,10 @@
 (define encoded-song (encode rock-song-lyrics rock-song-tree))
 (print encoded-song)
 (print (length encoded-song))
+(print "ex2.70 done\n\n")
 
-84 bits are required for the encoding.
-To encode 8 different symbols, we need 3 bits. And there are 
-36 symbols in the song, so the smallest number of bits that
-wouldbe need to encode this song is we used a fixed-length
-code for the eight-symbol is 36 * 3 = 108.
+;; 84 bits are required for the encoding.
+;; To encode 8 different symbols, we need 3 bits. And there are 
+;; 36 symbols in the song, so the smallest number of bits that
+;; would be need to encode this song is we used a fixed-length
+;; code is 106.

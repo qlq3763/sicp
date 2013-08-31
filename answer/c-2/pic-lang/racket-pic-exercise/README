@@ -1,0 +1,15 @@
+I try to take as least primitives from the support code as possible. 
+There are just two primitives I had to take from the support code.
+And I will re-implement all the other "primitives" based on the 
+two from support code.
+
+1. segments->painter, I'd like to have draw-line, which is not included in
+the support code.
+
+2.  load-painter, make a painter from a picture.
+
+See get-familiar.scm to see the code used to get familiar with this picture
+language.
+
+
+original version: ~/.racket/planet/300/5.2.1/cache/soegaard/sicp.plt/2/1

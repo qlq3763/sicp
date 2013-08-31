@@ -12,12 +12,6 @@
 	      0 
 	      sequence))
 
-(define (accumulate op initial sequence)
-  (if (null? sequence)
-      initial
-      (op (car sequence)
-          (accumulate op initial (cdr sequence)))))
-
 (define l-1 (list 4 3 2 1))
 (define l-2 (list 1 2 3 4))
 (define l-3 (list l-1 l-2))

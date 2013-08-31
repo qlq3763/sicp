@@ -16,4 +16,4 @@
   (display ")"))
 
 (define i (make-interval 4 14))
-(display i)
+(print-interval i)

@@ -113,12 +113,17 @@
 (define (my-cdr z)
   (z (lambda (p q) q)))
 
+;; proof, substitution model
+;; (my-car z) =>
+;; (my-car (my-cons 4 14)) =>
+;; (my-car (lambda (m) (m 4 14))) =>
+;; ((lambda (m) (m 4 14)) (lambda (p q) p)) =>
+;; (lambda (4 14) 4) =>
+;; 4
+
 ** Exercise 2.5
-From number theory: any number can and only can be represented as
-m1^a1 * m1^a2 *...*mn^an, where m1...mn are primes and a1...an are
-integers. And 2 and 3 are primes, so the product of exponentials of
-2^a and 3^b is unique and a and be can be retrieved back because of
-the property of prime. 
+2 and 3 have no common divisors, so for a number represented as
+2^a * 3^b, we can retrive the number of a and b back.
 
 (define (my-cons a b)
   (* (fast-expt-iter 2 a)
@@ -153,9 +158,9 @@ number mean is this exercise. Firstly, a number is a function, recall
 that from chapter one that (define (fun-name parameter)) is just a
 syntax sugar for (define fun-name (lambda (parameter))). So, two can
 be also defined as (define (two f) (lambda (x) ....)). Now that it is
-clear that a number means a function that takes one argument, which
+clear that a "number" means a function that takes one argument, which
 itself is a function taking one argument. The return value of this
-number function becomes easy to understand, it returns a function
+"number" function becomes easy to understand, it returns a function
 taking one argument. 
 
 Second, the "number" means how many times the argument function will
@@ -164,7 +169,7 @@ be applied.
 Third, now it is should be easy to see where is wrong about the first
 version written. What this wrong version does is, applying f n times
 then applying (n f) m times instead of applying f m times, this is the
-behavior a multiply should make. 
+behavior a multiply should produce. 
 
 ** Exercise 2.7
 (define (make-interval lower upper)
@@ -202,7 +207,7 @@ and w2.
 (define (div-interval x y)
   (if (and (<= (lower-bound y) 0)
 	   (>= (upper-bound y) 0))
-      false
+      (error "divided by zero")
   (mul-interval x 
                 (make-interval (/ 1.0 (upper-bound y))
                                (/ 1.0 (lower-bound y))))))
@@ -265,7 +270,7 @@ and w2.
   (/ (* (width i) 100.0) (center i)))
 
 ** Exercise 2.13
-Not the 100 in percent meaning into consideration.
+Do Not take the 100 in percent meaning into consideration.
 Suppose x:(x, p) = (x-xp1, x+xp1), y:(y, p)= (y-yp2, y+yp2) and x-xp1,
 x+xp1, y-yp2 and y+yp2 are all greater than zero. Then 
 p = x * y = (xy(1 - p1)(1 - p2), xy(1 + p1)(1 + p2)), and percentage
@@ -275,12 +280,16 @@ because p1 and p2 are small, so we can ignore p1p2, which is
 smaller. So, after this simplification 
 tp = p1 + p2.
 
+See also the result in ex2.12.scm
+
 ** Exercise 2.14
 ;; Let r1=(c1-c1p1,c1+c1p1), r2=(c2-c2p2,c2+c2p2), and it is not 
 ;; difficult to get rs1=(par1 r1 r2)=( (c1c2(1-p1)(1-p2))/(c1(1+p1)+c2(1+p2)),
 ;; (c1c2(1+p1)(1+p2))/(c1(1-p1)+c2(1-p2)) ) and
 ;; rs2=(par2 r1 r2)= ( (c1c2(1-p1)(1-p2))/(c1(1-p1)+c2(1-p2)), (c1c2(1+p1)(1+p2))/(c1(1+p1)+c2(1+p2)))
 ;; Now, it is obviously that rs1 is not equal to rs2.
+
+See also ex2.12.scm
 
 ;; See those webpages for furthur explanation:
 ;; http://eli.thegreenplace.net/2007/07/27/sicp-section-214/
@@ -295,18 +304,20 @@ par1, variable r1 and r2 both appeared twice, this means the error
 tolerances of r1 and r2 are taken into consideration twice, while in
 par2 both variable appeared only once, so par2 does not duplicate the
 error tolerances of r1 and r2. One thing deserves notation is that the
-variable one in par2 didn't introduce and error tolerance, and you
+variable one in par2 didn't introduce an error tolerance, and you
 can't achieve this by dividing A by A, where A is an interval(with
 error tolerance). This means you can not transform formula one to
 formula two by dividing both divisor and dividend with r1r2, this
 transformation is true in mathematics, but not in our interval
 computations.
 
+See also ex2.12.scm
+
 ** Exercise 2.16
 I think the fundamental reason for those discrepancy is that intervals
 are not exact numbers, which we are familiar with and which we apply
 the "normal" arithmetic operator such +,-,*,/ with. And the exact
-numbers have properties that we take for granted, but which is not
+numbers have properties that we take for granted, which are not
 true about intervals. 
 Let's just say some of the properties that are always true about exact
 numbers, but which are not always true about intervals.
@@ -318,7 +329,10 @@ but (i-1 + i-2) - i-2 is not always equal to i-1
 2# a - a = 0
 and i-1 - i-1 is not always equal to (0, 0)
 
-Just show some concrete examples.
+3# when a != 0 a/a = 1
+and i-1 not including 0, i-1/i-1 is not always (1, 1)
+
+Just show some concrete examples. See ex2.12.scm.
 Next I want to check all the basic properties about exact numbers to
 see which is also true about intervals:
 1# a + b = b + a. both true, I think.
@@ -327,13 +341,20 @@ see which is also true about intervals:
 4# (ab)c = a(bc). both true.
 5# a(b+c) = ab + ac. not both true.
 
+One way to achieve this may be to transfrom the given program to a program
+using the simplest form(with no unnecessary duplication of error tolerance).
+How do we know there is a simplest form, how to get it, how to decide if one
+form is already the simplest?
+To me this is impossible, at least for now. There are lots of research on
+interval computation, Google "interval computation" and learn.
+
 ;; http://eli.thegreenplace.net/2007/07/27/sicp-section-214/
 ;; http://wqzhang.wordpress.com/2009/06/18/sicp-exercise-2-16/
 
 * 2.2 Hierarchical Data and the Closure Property 
 
 ** Exercise 2.17
-Two way to solve this problem: 
+Two ways to solve this problem: 
 one: keep all information need--a car and cdr of a list and check the
 cdr part
 
@@ -429,7 +450,7 @@ Now let's start with the first version, I just show the value of
 variable answer at each step:
 () ->
 (1) ->
-(4 1) -> yes, cons works this way
+(4 1) -> ;; yes, cons works this way
 (9 4 1) ->
 (16 9 4 1) -> done.
 By using cons, the newly computed square is add to the head of list,
@@ -443,6 +464,7 @@ The second version:
 ((((() . 1) . 4) . 9) . 16) -> done.
 Well, this is kind of a mess, but this is how cons works.
 
+;; the correct version
 (define (square-list-iter items)
   (define (iter things answer)
     (if (null? things)
@@ -510,8 +532,8 @@ part, however, here, "list" is put at the "not pair?" part. The
 reason, I think, is that here I just want to construct a plain list,
 while in ex2.27 what I want to construct is a list of list(maybe). 
 
-The other thing to mention to remind myself is that only the car can
-get reduce a list to a rare element, cdr can not achieve this, it can
+The other thing to mention is that only the car can
+get reduce a list to a non-list element, cdr can not achieve this, it can
 only get nil. I think this is kind of the reason that why
 ex2.27-my-deep-reverse-2 works, for the operator "list" is added to
 the car-part.
@@ -608,7 +630,7 @@ the car-part.
 Why it works? First, rest is the subsets of s', which is s with out
 the first element. Now the question is that given the subsets of s',
 how could we get the subsets of s. Yeah, by adding every subset of s'
-with the first element of s, we get, let's say rest', then put rest
+with the first element of s, we get, let's say rest', then "append" rest
 and rest' will give an answer. The the reason that this is correct is
 simple: all subsets of s is composed of two kinds of subsets--those
 having the first element and those not having. So putting the two kinds
@@ -979,75 +1001,64 @@ property that op should satisfy is the associative law:
 ; relation can be decoupled in the second form, but can not in the 
 ; first and third form.
 
+** Exercise 2.43
+It will take about 8^8T. For at each column k, this version will call
+(queen-cols (- k 1)) board-size times, by multiplying all these together,
+we will get 8^8.
+
 ** Use Racket to implement the pic-lang exercises, start here
 #lang scheme
-(require (planet "sicp.ss" ("soegaard" "sicp.plt" 2 1)))
+all the code is contained in pic-lang/pic-ex-v2/pic-implementation.scm
 
 ** Exercise 2.44
-;(define (up-split painter n)
-;  (if (= n 0)
-;      painter
-;      (let ((smaller (up-split painter (- n 1))))
-;        (below painter (beside smaller smaller)))))
+(define (up-split painter n)
+  (if (= n 0)
+      painter
+      (let ((smaller (up-split painter (- n 1))))
+        (below painter (beside smaller smaller)))))
 
 ** Exercise 2.45
-; split with applying second op to smaller painter and first op
-; to identity painter and the result got from the previous step
-(define (split first-op second-op)
-  (define (n-split painter n)
+(define (split identity-op smaller-op)
+  (define (def-split painter n)
     (if (= n 0)
         painter
-        (let ((smaller (n-split painter (- n 1))))
-          (first-op painter (second-op smaller smaller)))))
-  n-split)
-(define right-split (split beside below))
-(define up-split (split below beside))
+        (let ((smaller (def-split painter (- n 1))))
+          (identity-op painter (smaller-op smaller smaller)))))
+  def-split)
+
+(define right-split-v2 (split beside below))
+(define up-split-v2 (split below beside))
 
 ** Exercise 2.46
-;(define (make-vect x y)
-;  (list x y))
-;
-;(define (vect-xcor v)
-;  (car v))
-;
-;(define (vect-ycor v)
-;  (cadr v))
-;
-;(define (add-vect v1 v2)
-;  (make-vect (+ (xcor-vect v1) (xcor-vect v2))
-;             (+ (ycor-vect v1) (ycor-vect v2))))
-;
-;(define (sub-vect v1 v2)
-;  (make-vect (- (xcor-vect v1) (xcor-vect v2))
-;             (- (ycor-vect v1) (ycor-vect v2))))
-;
-;(define (scale-vect v x)
-;  (make-vect (* (xcor-vect v) x)
-;             (* (ycor-vect v) x)))
-;
-;(define v1 (make-vect 4 -4))
-;(define v2 (make-vect -4 4))
-;(print v1)
-;(print v2)
-;(print (add-vect v1 v2))
-;(print (sub-vect v1 v2))
-;(print (scale-vect v1 -1))
+(define (make-vect x y)
+  (cons x y))
+
+(define (xcor-vect v)
+  (car v))
+
+(define (ycor-vect v)
+  (cdr v))
+
+(define (add-vect v1 v2)
+  (make-vect (+ (xcor-vect v1)
+                (xcor-vect v2))
+             (+ (ycor-vect v1)
+                (ycor-vect v2))))
+
+(define (sub-vect v1 v2)
+  (make-vect (- (xcor-vect v1)
+                (xcor-vect v2))
+             (- (ycor-vect v1)
+                (ycor-vect v2))))
+
+(define (scale-vect s v)
+  (make-vect (* s (xcor-vect v))
+             (* s (ycor-vect v))))
 
 ** Exercise 2.47
+;; version one
 ;(define (make-frame origin edge1 edge2)
 ;  (list origin edge1 edge2))
-;
-;(define (frame-origin f)
-;  (car f))
-;
-;(define (frame-edge1 f)
-;  (cadr f))
-;
-;(define (frame-edge2 f)
-;  (caddr f))
-
-;(define (make-frame origin edge1 edge2)
-;  (cons origin (cons edge1 edge2)))
 ;
 ;(define (origin-frame f)
 ;  (car f))
@@ -1056,241 +1067,161 @@ property that op should satisfy is the associative law:
 ;  (cadr f))
 ;
 ;(define (edge2-frame f)
-;  (cddr f))
+;  (caddr f))
 
-;(define frame (make-frame 0 4 -4))
-;(print frame)
-;(print (origin-frame frame))
-;(print (edge1-frame frame))
-;(print (edge2-frame frame))
+;; version two
+(define (make-frame origin edge1 edge2)
+  (cons origin (cons edge1 edge2)))
+
+(define (origin-frame f)
+  (car f))
+
+(define (edge1-frame f)
+  (cadr f))
+
+(define (edge2-frame f)
+  (cddr f))
 
 ** Exercise 2.48
-;(define (make-segment start-vect end-vect)
-;  (list start-vect end-vect))
-;
-;(define (segmen-start s)
-;  (car s))
-;
-;(define (segment-end s)
-;  (cadr s))
+(define (make-segment s e)
+  (cons s e))
 
-;(define s1 (make-segment v1 v2))
-;(print s1)
-;(print (start-segment s1))
-;(print (end-segment s1))
+(define (start-segment s)
+  (car s))
+
+(define (end-segment s)
+  (cdr s))
 
 ** Exercise 2.49
-;;(define origin (make-vect 0 0))
-;;(define edge1 (make-vect 4 0))
-;;(define edge2 (make-vect 0 4))
-;;(define frame (make-frame origin edge1 edge2))
-;(define one 0.99)
-;(define origin (make-vect 0 0))
-;(define x-cor (make-vect one 0))
-;(define y-cor (make-vect 0 one))
-;(define diagonal (make-vect one one))
-;
-;;;a
-;(define (frame-outline frame)
-;    ((segments->painter (list (make-segment origin x-cor)
-;                           (make-segment origin y-cor)
-;                           (make-segment x-cor diagonal)
-;                           (make-segment y-cor diagonal)))
-;     frame))
-;
-;;(paint frame-outline)
-;
-;;; b
-;(define (x-painter frame)
-;  ((segments->painter (list (make-segment origin diagonal)
-;                            (make-segment x-cor y-cor)))
-;   frame))
-;;(paint x-painter)
-;
-;;; c
-;(define half 0.5)
-;(define x-b-half (make-vect half 0))
-;(define x-t-half (make-vect half 1))
-;(define y-l-half (make-vect 0 half))
-;(define y-r-half (make-vect 1 half))
-;(define (diamond-painter frame)
-;  ((segments->painter (list (make-segment x-b-half y-l-half)
-;                            (make-segment x-b-half y-r-half)
-;                            (make-segment x-t-half y-l-half)
-;                            (make-segment x-t-half y-r-half)))
-;   frame))
-;
-;;(paint diamond-painter)
-;
-;;; d
-;(define (wave frame)
-;  ((segments->painter (list 
-;                       ;; high part
-;                       (make-segment (make-vect 0 0.8) (make-vect 0.1 0.65))
-;                       (make-segment (make-vect 0.1 0.65) (make-vect 0.3 0.7))
-;                       (make-segment (make-vect 0.3 0.7) (make-vect 0.25 0.8))
-;                       (make-segment (make-vect 0.25 0.8) (make-vect 0.35 0.9))
-;                       (make-segment (make-vect 0.5 0.9) (make-vect 0.55 0.8))
-;                       (make-segment (make-vect 0.55 0.8) (make-vect 0.5 0.7))
-;                       (make-segment (make-vect 0.5 0.7) (make-vect 0.65 0.7))
-;                       (make-segment (make-vect 0.65 0.7) (make-vect 0.9 0.3))
-;                       ;; low part
-;                       (make-segment (make-vect 0 0.65) (make-vect 0.1 0.55))  
-;                       (make-segment (make-vect 0.1 0.55) (make-vect 0.2 0.64))
-;                       (make-segment (make-vect 0.2 0.64) (make-vect 0.25 0.5))
-;                       (make-segment (make-vect 0.2 0) (make-vect 0.25 0.5))
-;                       (make-segment (make-vect 0.3 0) (make-vect 0.4 0.4))
-;                       (make-segment (make-vect 0.4 0.4) (make-vect 0.5 0))
-;                       (make-segment (make-vect 0.6 0) (make-vect 0.5 0.55))
-;                       (make-segment (make-vect 0.5 0.55) (make-vect 0.8 0.1))
-;                       )) 
-;   frame))
-;
-;;(paint wave)
-;;(paint (beside wave (flip-vert wave)))
+(define left-bottom (make-vect 0 0))
+(define left-top (make-vect 0 0.99))
+(define right-bottom (make-vect 0.99 0))
+(define right-top (make-vect 0.99 0.99))
+;; a.
+(define outline-painter (segments->painter 
+                         (list (make-segment left-bottom right-bottom)
+                               (make-segment right-bottom right-top)
+                               (make-segment right-top left-top)
+                               (make-segment left-top left-bottom))))
+;;(outline-painter f1)
+
+;; b.
+(define x-painter (segments->painter 
+                   (list (make-segment left-bottom right-top)
+                         (make-segment left-top right-bottom))))
+;; (x-painter f1)
+
+;; c.
+(define diamond-painter (let ((p1 (make-vect 0.5 0))
+                              (p2 (make-vect 1 0.5))
+                              (p3 (make-vect 0.5 1))
+                              (p4 (make-vect 0 0.5)))
+                          (segments->painter
+                           (list (make-segment p1 p2)
+                                 (make-segment p2 p3)
+                                 (make-segment p3 p4)
+                                 (make-segment p4 p1)))))
+;; (diamond-painter f1)
+
+;; d.
+;; see above definition
 
 ** Exercise 2.50
-;(define (my-flip-horiz painter)
-;  ((transform-painter 
-;                     (make-vect one 0)
-;                     (make-vect 0 0)
-;                     (make-vect 1 1))painter))
-;
-;(define (my-rotate180 painter)
-;  ((transform-painter (make-vect one one)
-;                     (make-vect 0 one)
-;                     (make-vect one 0))
-;   painter))
-;
-;(define (my-rotate270 painter)
-;  ((transform-painter (make-vect 0 one)
-;                      (make-vect 0 0 )
-;                      (make-vect one one))
-;   painter))
-;
-;;(paint einstein)
-;;(paint (my-flip-horiz einstein))
-;;(paint (rotate90 einstein))
-;;(paint (my-rotate180 einstein))
-;;(paint (my-rotate270 einstein))
+(define (flip-horiz painter)
+  (transform-painter painter
+                     (make-vect 1 0)
+                     (make-vect 0 0)
+                     (make-vect 1 1)))
+;;((flip-horiz wave) f1) 
+
+;; rotate180, rotate270, could use rotate90 to implement
+;; I like to use the vector version to test my understanding
+(define (rotate180 painter)
+  (transform-painter painter
+                     (make-vect 1 1)
+                     (make-vect 0 1)
+                     (make-vect 1 0)))
+
+;;((rotate180 wave) f1)
+(define (rotate270 painter)
+  (transform-painter painter
+                     (make-vect 0 1)
+                     (make-vect 0 0)
+                     (make-vect 1 1)))
+;; ((rotate270 wave) f1)
 
 ** Exercise 2.51
-;(define (my-below painter1 painter2)
-;  (let ((split-point (make-vect 0.0 0.5)))
-;    (let ((paint-below
-;           ((transform-painter 
-;                              (make-vect 0.0 0.0)
-;                              (make-vect one 0.0)
-;                              split-point)
-;            painter1))
-;          (paint-top
-;           ((transform-painter 
+;(define (below painter1 painter2)
+;  (let ((split-point (make-vect 0 0.5)))
+;    (let ((paint-bottom
+;           (transform-painter painter1
+;                              (make-vect 0 0)
+;                              (make-vect 1 0)
+;                              split-point))
+;          (paint-top 
+;           (transform-painter painter2
 ;                              split-point
-;                              (make-vect one 0.5)
-;                              (make-vect 0.0 one))
-;            painter2)))
+;                              (make-vect 1 0.5)
+;                              (make-vect 0 1))))
 ;      (lambda (frame)
-;        (paint-below frame)
+;        (paint-bottom frame)
 ;        (paint-top frame)))))
-;
-;(define (my-below-2 painter1 painter2)
-;  (rotate270 (beside (rotate90 painter2) (rotate90 painter1))))
-;  
-;;(paint (my-below wave einstein))
-;;(paint (my-below-2 wave einstein))
+
+;; version two
+(define (below painter1 painter2)
+  (rotate90 (beside (rotate270 painter1)
+                    (rotate270 painter2))))
+;; ((below wave wave) f1)
 
 ** Exercise 2.52 
-;;; a
-;; I kind of feel sick trying to make change to this procedure. I should 
-;; add more comment here or split this procedure apart. Keep this in mind,
-;; don't repeat this pattern again.
-;(define (wave-2 frame)
-;  ((segments->painter (list 
-;                       ;; high part
-;                       (make-segment (make-vect 0 0.8) (make-vect 0.1 0.65))
-;                       (make-segment (make-vect 0.1 0.65) (make-vect 0.3 0.7))
-;                       (make-segment (make-vect 0.3 0.7) (make-vect 0.25 0.8))
-;                       (make-segment (make-vect 0.25 0.8) (make-vect 0.35 0.9))
-;                       (make-segment (make-vect 0.5 0.9) (make-vect 0.55 0.8))
-;                       (make-segment (make-vect 0.55 0.8) (make-vect 0.5 0.7))
-;                       (make-segment (make-vect 0.5 0.7) (make-vect 0.65 0.7))
-;                       (make-segment (make-vect 0.65 0.7) (make-vect 0.9 0.3))
-;                       ;; low part
-;                       (make-segment (make-vect 0 0.65) (make-vect 0.1 0.55))  
-;                       (make-segment (make-vect 0.1 0.55) (make-vect 0.2 0.64))
-;                       (make-segment (make-vect 0.2 0.64) (make-vect 0.25 0.5))
-;                       (make-segment (make-vect 0.2 0) (make-vect 0.25 0.5))
-;                       (make-segment (make-vect 0.3 0) (make-vect 0.4 0.4))
-;                       (make-segment (make-vect 0.2 0) (make-vect 0.3 0)) ;; add foot here
-;                       (make-segment (make-vect 0.4 0.4) (make-vect 0.5 0))
-;                       (make-segment (make-vect 0.6 0) (make-vect 0.5 0.55))
-;                       (make-segment (make-vect 0.5 0) (make-vect 0.6 0)) ;; add foot here
-;                       (make-segment (make-vect 0.5 0.55) (make-vect 0.8 0.1))
-;                       )) 
-;   frame))
-;
-;;(paint wave-2)
-;
-;;; b
-;(define (right-split painter n)
-;  (if (= n 0)
-;      painter
-;      (let ((smaller (right-split painter (- n 1))))
-;        (beside painter (below smaller smaller)))))
+;;((square-limit wave 1) f1)
+;; a.
+;; already has smile
+;; just change the definition of wave, add some segments
 
-(define (split first-op second-op)
-  (define (n-split painter n)
-    (if (= n 0)
-        painter
-        (let ((smaller (n-split painter (- n 1))))
-          (first-op painter (second-op smaller smaller)))))
-  n-split)
-(define right-split (split beside below))
-(define up-split (split below beside))
-
-(define (corner-split painter n)
+;; b.
+;; just to chagne the internal implementation of corner-split
+;; to avoid duplicate definition, I changed the name of corner-split-b
+;; so I also have to change square-limit.
+;; If I just need one version of corner-split, I just need to change its 
+;; internal definition
+(define (corner-split-b painter n)
   (if (= n 0)
       painter
       (let ((up (up-split painter (- n 1)))
             (right (right-split painter (- n 1))))
-        (let ((top-left (beside up up))
-              (bottom-right (below right right))
-              (corner (corner-split painter (- n 1))))
-          (beside (below painter top-left)
-                  (below bottom-right corner))))))
-;
-;(define (corner-split-2 painter n)
-;  (if (= n 0)
-;      painter
-;      (let ((up (up-split painter (- n 1)))
-;            (right (right-split painter (- n 1))))
-;        (let ((top-left up)
-;              (bottom-right right)
-;              (corner (corner-split painter (- n 1))))
-;          (beside (below painter top-left)
-;                  (below bottom-right corner))))))
-;
-;;(paint (corner-split einstein 4))
-;;(paint (corner-split-2 einstein 4))
+        (let ((corner (corner-split painter (- n 1))))
+          (beside (below painter up)
+                  (below right corner))))))
 
 
-;; c
-(define rogers (load-painter "fovnder.gif"))
+(define (square-limit-b painter n)
+  (let ((quarter (corner-split-b painter n)))
+    (let ((half (beside (flip-horiz quarter) quarter)))
+      (below (flip-vert half) half))))
+;; ((square-limit-b wave 1) f1)
 
+;; c.
 (define (square-of-four tl tr bl br)
   (lambda (painter)
     (let ((top (beside (tl painter) (tr painter)))
           (bottom (beside (bl painter) (br painter))))
       (below bottom top))))
 
-(define (square-limit painter n)
-  (let ((combine4 (square-of-four flip-horiz identity ; should not make change here, as I do in the first time
-                                  rotate180 flip-vert)))
-    (combine4 (corner-split (flip-horiz painter) n))))
 
-(paint (square-limit rogers 1))
-(paint rogers)
-(paint (flip-horiz rogers))
+(define (square-limit-c1 painter n)
+  (let ((combine4 (square-of-four flip-horiz identity
+                                  rotate180 flip-vert)))
+    (combine4 (corner-split painter n))))
+
+;;((square-limit-c1 wave 1) f1)
+
+(define (square-limit-c2 painter n)
+  (let ((combine4 (square-of-four flip-horiz identity ;; should not make change here
+                                  rotate180 flip-vert)))
+    (combine4 (corner-split (flip-horiz painter) n)))) ;; yeah, should make change here
+
+((square-limit-c2 wave 1) f1)
 
 ** Use Racket to implement the pic-lang exercises, end here
 
@@ -1309,34 +1240,39 @@ property that op should satisfy is the associative law:
 
 ** Exercise 2.54
 ; be able to handle (nested)list of symbol and number
+;; assume a and b are both list
 (define (my-equal? a b)
-  (cond ((not (= (length a) (length b))) ; 0
-	 false)
-	((and (null? a) (null? b)) ;1
-	 true)
-	((and (pair? (car a)) (pair? (car b))) ;2
-	 (and (my-equal? (car a) (car b))
-	      (my-equal? (cdr a) (cdr b))))
-	((or (and (number? (car a)) ;3
-		  (number? (car b)) 
-		  (= (car a) (car b)))
-	     (eq? (car a) (car b)))
-	 (my-equal? (cdr a) (cdr b)))
-	(else false))) ;4
+  (cond	((and (null? a) (null? b)) ;1
+		 true)
+		((not (= (length a) (length b)));2
+		 false)
+		((and (pair? (car a)) (pair? (car b))) ;3
+		 (and (my-equal? (car a) (car b))
+			  (my-equal? (cdr a) (cdr b))))
+		((and (number? (car a)) (number? (car b)));4
+		 (and (= (car a) (car b))
+			  (my-equal? (cdr a) (cdr b))))
+		((and (symbol? (car a)) (symbol? (car b)));5
+		 (and (eq? (car a) (car b))
+			  (my-equal? (cdr a) (cdr b))))
+		(else false))) ;6
 
 ; This version is simpler, and the difference between this two deserves
 ; attention: the previous version think in terms of (car a) and (car b),
 ; this version think in terms of a and b.
 ; Should learn from this. Think in a higher level.
+; Another benefit: (my-equal 3 4) works for this "simpler" version, not
+; for the above version
 (define (my-equal? a b)
   (cond ((and (null? a) (null? b)) ; 1
-	 true)
-	((and (pair? a) (pair? b)) ; 2
-	 (and (my-equal? (car a) (car b))
-	      (my-equal? (cdr a) (cdr b))))
-	((and (not (pair? a)) (not (pair? b))) ;3
-	 (eq? a b))
-	(else false))) ; 4
+		 true)
+		((and (pair? a) (pair? b)) ; 2
+		 (and (my-equal? (car a) (car b))
+			  (my-equal? (cdr a) (cdr b))))
+		((and (not (pair? a)) (not (pair? b))) ;3
+		 (or (and (symbol? a) (symbol? b) (eq? a b))
+			 (and (number? a) (number? b) (= a b))))
+		(else false))) ; 4
 
 ** Exercise 2.55
 ''letters = (quote (quote letters))<to be evaluated> 
@@ -1387,13 +1323,75 @@ So, now the result printed should make sense.
 ; (print (deriv '(+ (* 4 x) (** x 4)) 'x))
 
 ** Exercise 2.57
+;; representing algebraic expressions
+
+(define (variable? x) (symbol? x))
+
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+
+;; simplify number elements by computing one result element
+;; instead of multiple
+(define (simplify-nums op initial elem-list)
+  (let ((nums (filter number? elem-list))
+	(non-nums (filter (lambda (x) (not (number? x))) elem-list)))
+    (let ((acc (accumulate op initial nums)))
+      (if (not (= acc initial))
+	  (cons acc non-nums)
+	  non-nums))))
+
+(define (one-elem? elem-list)
+  (= (length elem-list) 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; sum
+(define (make-sum . a)
+  (let ((elems (simplify-nums + 0 a)))
+    (cond ((null? elems)
+	   0) ;; (make-sum)=>0
+	  ((one-elem? elems)
+	   (car elems))
+	  (else (cons '+ elems)))))
+
+(define (sum? x)
+  (and (pair? x) (eq? (car x) '+)))
+
+(define (addend s) (cadr s))
+
 (define (augend s) 
   (nry s '+))
 
+(assert '(equal? (make-sum 1 2 3 4) 10))
+(assert '(equal? (make-sum) 0))
+(assert '(equal? (make-sum 3) 3))
+(assert '(equal? (make-sum 'x) 'x))
+(assert '(equal? (make-sum 1 'x 2 3 'y) '(+ 6 x y)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; product
+(define (make-product . a)
+  (let ((elems (simplify-nums * 1 a)))
+    (cond ((null? elems)
+	   1) ;; (make-product)=>1
+	  ((one-elem? elems)
+	   (car elems))
+	  (else (cons '* elems)))))
+
+(define (product? x)
+  (and (pair? x) (eq? (car x) '*)))
+
 (define (multiplicand p)
   (nry p '*))
-  
-  ;(caddr p))
+
+(define (multiplier p) (cadr p))  
+
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+
+(assert '(equal? (make-product) 1))
+(assert '(equal? (make-product 'x) 'x))
+(assert '(equal? (make-product 1 2 3 4) 24))
+(assert '(equal? (make-product 1 2 3 'x 4 'y) '(* 24 x y)))
 
 ;; if seq is of the form (op, arg1, arg2), then return arg2.
 ;; if seq is of the from (op, arg1, arg2, ...argn), return (op arg2, ...argn).
@@ -1403,81 +1401,220 @@ So, now the result printed should make sense.
 	(car rest)
 	(cons op rest))))
 
-(print (deriv '(+ x x x x) 'x))
+(assert '(equal? (deriv '(+ x x x x) 'x) 4))
+(newline)
 (print (deriv '(* x x x x) 'x))
 
+;; Actually, I think the first parameter to deriv should be constructed
+;; (only) from make-sum, make-product. '(+ x x x) actually is making 
+;; assumption about how sum is represented. It assumes there is list,
+;; but how about sum being represented by (cons + (cons ...))?
+;; Another point: this is white box test. Still I don't think directly
+;; giving list as arguemnt is a good idea. Suppose the representation
+;; of sum has changed, then the tests need to change too.
+(assert '(equal? (deriv (make-sum) 'x) 0))
+(assert '(equal? (deriv (make-sum 'x) 'x) 1))
+;; (assert '(equal? (deriv '(+ x) 'x) 1)) ;; augend will fail
+
 ** Exercise 2.58
-;; a
-(define (make-sum a1 a2)
-  (cond ((=number? a1 0) a2)
-        ((=number? a2 0) a1)
-        ((and (number? a1) (number? a2)) (+ a1 a2))
-        (else (list a1 '+ a2))))
+;; a.
+;; (define (make-sum a1 a2)
+;;   (cond ((=number? a1 0) a2)
+;;         ((=number? a2 0) a1)
+;;         ((and (number? a1) (number? a2)) (+ a1 a2))
+;;         (else (list a1 '+ a2))))
 
-(define (=number? exp num)
-  (and (number? exp) (= exp num)))
+;; (define (=number? exp num)
+;;   (and (number? exp) (= exp num)))
 
-(define (make-product m1 m2)
-  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
-        ((=number? m1 1) m2)
-        ((=number? m2 1) m1)
-        ((and (number? m1) (number? m2)) (* m1 m2))
-        (else (list m1 '* m2))))
+;; (define (make-product m1 m2)
+;;   (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+;;         ((=number? m1 1) m2)
+;;         ((=number? m2 1) m1)
+;;         ((and (number? m1) (number? m2)) (* m1 m2))
+;;         (else (list m1 '* m2))))
 
-(define (sum? x)
-  (and (pair? x) (eq? (cadr x) '+)))
+;; (define (sum? x)
+;;   (and (pair? x) (> (length x) 1) (eq? (cadr x) '+)))
 
-(define (addend s) (car s))
+;; (define (addend s) (car s))
 
-(define (augend s) (caddr s))
+;; (define (augend s) (caddr s))
 
-(define (product? x)
-  (and (pair? x) (eq? (cadr x) '*)))
+;; (define (product? x)
+;;   (and (pair? x) (> (length x) 1) (eq? (cadr x) '*)))
 
-(define (multiplier p) (car p))
+;; (define (multiplier p) (car p))
 
-(define (multiplicand p) (caddr p))
+;; (define (multiplicand p) (caddr p))
 
-(print (deriv '(x + (3 * (x + (y + 2)))) 'x))
-(print (deriv '(x + (3 * (x + (y + 2)))) 'y))
+;; ;; (x + (3 * (x + (y + 2))))
+;; (define exp (make-sum 'x
+;; 					  (make-product 3
+;; 									(make-sum 'x
+;; 											  (make-sum 'y 2)))))
+;; (assert '(= (deriv exp 'x) 4))
+;; (assert '(= (deriv exp 'y) 3))
 
 ;; b
+
+;; simplify number elements by computing one result element
+;; instead of multiple
+(define (simplify-nums op initial elem-list)
+  (let ((nums (filter number? elem-list))
+	(non-nums (filter (lambda (x) (not (number? x))) elem-list)))
+    (let ((acc (accumulate op initial nums)))
+      (if (not (= acc initial))
+	  (cons acc non-nums)
+	  non-nums))))
+
+(define (one-elem? elem-list)
+  (= (length elem-list) 1))
+
+;; insert op between any two elements
+(define (insert-op op elem-list)
+  (define (iter lst rst)
+	(if (= (length lst) 1)
+		(append rst lst)
+		(iter (cdr lst)
+			  (append rst (cons (car lst) (list op))))))
+  (iter elem-list '()))
+
+;; sum
+(define (make-sum . a)
+  (let ((elems (simplify-nums + 0 a)))
+    (cond ((null? elems)
+		   0) ;; (make-sum)=>0
+		  ((one-elem? elems)
+		   (car elems))
+		  (else (insert-op '+ elems)))))
+
 (define (sum? x)
   (and (pair? x) (list? (memq '+ x))))
 
 (define (addend s) 
   (define (collect-until-plus seq result)
     (if (and (symbol? (car seq)) (eq? (car seq) '+))
-	result
-	(collect-until-plus (cdr seq) 
-			    (append result (list (car seq))))))
+		result
+		(collect-until-plus (cdr seq) 
+							(append result (list (car seq))))))
 
   (let ((seq-before-plus (collect-until-plus s '())))
-    (if (= (length seq-before-plus) 1)
-	(car seq-before-plus)
-	seq-before-plus)))
+    (if (= (length seq-before-plus) 1) ;; single element
+		(car seq-before-plus)
+		seq-before-plus)))
 
 (define (augend s) 
   (let ((seq-after-plus (cdr (memq '+ s))))
-    (if (= (length seq-after-plus) 1)
+    (if (= (length seq-after-plus) 1) ;; single element
 	(car seq-after-plus)
 	seq-after-plus)))
 
-(define (deriv exp var)
-  (cond ((number? exp) 0)
-        ((variable? exp)
-         (if (same-variable? exp var) 1 0))
-        ((sum? exp) ; must come before product
-         (make-sum (deriv (addend exp) var)
-                   (deriv (augend exp) var)))
-        ((product? exp)
-         (make-sum
-           (make-product (multiplier exp)
-                         (deriv (multiplicand exp) var))
-           (make-product (deriv (multiplier exp) var)
-                         (multiplicand exp))))
-        (else
-         (error "unknown expression type -- DERIV" exp))))
+;; simple tests
+(define s1 (make-sum 1 2 3 'x 4))
+(define s2 (make-sum 1 'x 'y 3))
+
+(assert '(equal? (make-sum 1 2 3 4) 10))
+(assert '(equal? (make-sum 'x) 'x))
+(assert '(equal?  s1 '(10 + x)))
+(assert '(equal?  s2 '(4 + x + y)))
+(assert '(equal? (make-sum 0 'x 0 0 'z) '(x + z)))
+
+(assert '(equal? (addend s1) 10))
+(assert '(equal? (augend s1) 'x))
+(assert '(equal? (addend s2) 4))
+(assert '(equal? (augend s2) '(x + y)))
+
+;; product
+;; should also make changes to ex2.57
+;; just leave as it is, as a remainder: test cases should cover
+;; at least every possible condition
+(define (make-product . a)
+  (let ((elems (simplify-nums * 1 a)))
+    (cond ((null? elems)
+		   1) ;; (make-product)=>1
+		  ((not (false? (memq 0 elems))) ;; add 
+		   0)
+		  ((one-elem? elems)
+		   (car elems))
+		  (else (insert-op '* elems)))))
+
+(define (product? x)
+  (and (pair? x) (eq? (cadr x) '*)))
+
+(define (multiplier p) (car p))
+
+(define (multiplicand p) 
+  (define (collect lst rst)
+	(cond ((null? lst)
+		   rst)
+		  ((and (symbol? (car lst)) (eq? (car lst) '*))
+		   (collect (cddr lst)
+					(append rst (list (cadr lst)))))
+		  (else rst)))
+  (let ((rest (insert-op '* (collect (cdr p) '()))))
+	(if (= (length rest) 1)
+		(car rest)
+		rest)))
+		  
+
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+
+;; simple tests
+(define p1 (make-product 1 2 3 'x 4))
+(define p2 (make-product 1 'x 'y 3))
+
+(assert '(equal? (make-product 1 2 3 4) 24))
+(assert '(equal? (make-product 'x) 'x))
+(assert '(equal? (make-product 'x 1 1 1 'y) '(x * y)))
+(assert '(equal?  p1 '(24 * x)))
+(assert '(equal?  p2 '(3 * x * y)))
+
+(assert '(equal? (multiplier p1) 24))
+(assert '(equal? (multiplicand p1) 'x))
+(assert '(equal? (multiplier p2) 3))
+(assert '(equal? (multiplicand p2) '(x * y)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(assert '(equal? (deriv '(x + x + (x + y + x)) 'x) 4))
+(assert '(equal? (deriv '(x + (3 * (x + (y + 2)))) 'x) 4))
+(assert '(equal? (deriv '(x + (3 * (x + (y + 2)))) 'y) 3))
+(assert '(equal? (deriv '(x + 3 * (x + y + 2)) 'x) 4))
+(assert '(equal? (deriv '(x * y * z) 'x) '(y * z)))
+(assert '(equal? (deriv '(3 * x + 2 * x) 'x) 5))
+(assert '(equal? (deriv '(x + (3 * x + y) * 2) 'x) 7))
+
+(newline)
+(print (deriv '(3 * x * z * m + x) 'x))
+(print (deriv '((3 * x + y) * x + y * x) 'x))
+
+;; Another problem:
+;; for ex2.57, ex2.58.
+;; Does make-sum, make-product really need to be changed to accept
+;; more than two arguments?
+;; Two sides: 
+;; advantage of change: consistent with the list representation, conceptual consistance
+
+;; disadvantage of change: need more work.
+
+;; Actually, the list representation of expression is just a language that
+;; we need to interpret, we don't need to create expression that way. As 
+;; we know, as far as deriv is corcened, make-sum(make-product) just take
+;; two arguments. 
+
+;; As for this form: (deriv (make-sum 1 'x 'y 'x)), we don't care what 
+;; representation make-sum used to keep all this information. The only
+;; condition is that addend and augend can retrieve this information
+;; properly. Then problem for ex2.57 an ex2.58 becomes: we just need 
+;; a two argument make-sum and make-product, which are simple to implement. Plus these, what we need is a more complex way to interpret another
+;; list representation.
+
+;; Or we could think it another way: those list representaions are produced by make-sum and make-product, then we need to implement arbitrary-argument make-sum, make-product. As I said in ex2.57, argument passed
+;; to deriv should be constructed from make-sum and make-product
+
+;; Above is some thoughts about those two exercises, I will still
+;; implement the arbitrary-argument version.
 
 ** Exercise 2.59
 (define (union-set set1 set2)
@@ -1528,7 +1665,7 @@ adjoin-set: O(1)
 intersection-set: O(n^2)
 union-set: O(1)
 
-If the set operations used most are adjoin and union, this duplicate
+If the set operations used most frequently are adjoin and union, this duplicate
 version is better in efficiency(measured by time). Another thing needs
 to note is that this version consumes more (memory) space.
 
@@ -1586,7 +1723,7 @@ to note is that this version consumes more (memory) space.
 
 ;; a.
 I think the two procedures produce the same results for every tree.
-The list that the two procedures produce for figure 2.16 is:(1, 3, 5, 7, 9, 11) 
+The list that the two procedures produce in figure 2.16 is:(1, 3, 5, 7, 9, 11) 
 for all the three trees. 
 
 Both of the two procedures implement a in-order traversal of a tree.
@@ -1600,7 +1737,7 @@ For tree-list-2: T(n) = 2T(n/2) + O(1) = O(n).
 ;; a.
 Think it recursively: first compute the left subtree, which contains
 about half n elements((n - 1) / 2); then get the current entry from 
-the left elements; then compute the right subtree; finally put the
+the non-left elements; then compute the right subtree; finally put the
 privious three elements together, you got the whole tree.
         5
      /     \

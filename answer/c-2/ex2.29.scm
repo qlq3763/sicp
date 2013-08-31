@@ -72,7 +72,7 @@
 (define b-7 (make-branch 4 m-4))
 (define m-5 (make-mobile b-7 b-2))
 (define b-8 (make-branch 4 m-5))
-(define m-6 (make-mobile b-3 b-3))
+(define m-6 (make-mobile b-8 b-4))
 
 (newline)
 (display (total-weight m-3))

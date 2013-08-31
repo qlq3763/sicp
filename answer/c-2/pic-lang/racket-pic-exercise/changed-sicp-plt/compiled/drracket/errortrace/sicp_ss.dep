@@ -1,0 +1,1 @@
+("5.2.1" ("f9ed5a53644d320cdd4043ea9e8c08a4c2bf419a" . "184a0a071aa33e526a0f37e9db47c3a8ea45fc1d") (collects #"errortrace" #"errortrace-key.rkt") (collects #"scheme" #"mzscheme.rkt") (collects #"mzscheme" #"main.rkt") #"/media/qlq/sicp/answer/c-2/pic-lang/racket-pic-exercise/sicp-plt/painters.rkt" (collects #"mzlib" #"defmacro.rkt"))

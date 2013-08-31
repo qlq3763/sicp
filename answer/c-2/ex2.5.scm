@@ -13,9 +13,9 @@
       0))
 
 (define z (my-cons 14 4))
+(assert '(= (my-car z) 14))
+(assert '(= (my-cdr z) 4))
 
-(newline)
-(display (my-car z))
-
-(newline)
-(display (my-cdr z))
+(define z2 (my-cons 0 0))
+(assert '(= (my-car z2) 0))
+(assert '(= (my-cdr z2) 0))

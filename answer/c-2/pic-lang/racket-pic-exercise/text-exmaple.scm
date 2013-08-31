@@ -1,3 +1,6 @@
+#lang scheme
+(require (planet "sicp.ss" ("soegaard" "sicp.plt" 2 1)))
+
 ;(define (right-split painter n)
 ;  (if (= n 0)
 ;      painter
@@ -143,7 +146,7 @@
  
 (define one 0.99)
  
-(define origin (make-vect 0 0))
+;; (define origin (make-vect 0 0))
  
 (define lower-right (make-vect one 0))
  

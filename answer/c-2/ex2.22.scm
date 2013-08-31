@@ -18,6 +18,27 @@
 ;; ((((() . 1) . 4) . 9) . 16) -> done.
 ;; Well, this is kind of a mess, but this is how cons works.
 
+;; version 1
+(define (square-list-v1 items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things) 
+              (cons (square (car things))
+                    answer))))
+  (iter items nil))
+
+;; version 2
+(define (square-list-v2 items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+                    (square (car things))))))
+  (iter items nil))
+
+;; the correct version
 (define (square-list-iter items)
   (define (iter things answer)
     (if (null? things)
@@ -26,10 +47,34 @@
 	      (append answer (list (square (car things)))))))
   (iter items '()))
 
+;; defined in ex2.21.scm
+;; (define l-3 (list 1 2 3 4 14))
+;; (define l-4 (list -1 1 4 14 -4))
 
 (newline)
-(display (square-list-iter l-3))
+(display "original list:\n")
+(display l-3)
+(newline)
+(display l-4)
 
+;; version 1
+(newline)
+(display "square-lsit version 1:\n")
+(display (square-list-v1 l-3))
+(newline)
+(display (square-list-v1 l-4))
+
+;; version 2
+(newline)
+(display "square-lsit version 2:\n")
+(display (square-list-v2 l-3))
+(newline)
+(display (square-list-v2 l-4))
+
+;; correct version
+(newline)
+(display "suqare-list correct version:\n")
+(display (square-list-iter l-3))
 (newline)
 (display (square-list-iter l-4))
 

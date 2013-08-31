@@ -1,0 +1,1 @@
+("5.2.1" ("f9ed5a53644d320cdd4043ea9e8c08a4c2bf419a" . "c2e5c23518e56935b38d90b9d35f0b9e2b5d2068") (collects #"scheme" #"mzscheme.rkt") (collects #"mzscheme" #"main.rkt") #"/home/qlq/.racket/planet/300/5.2.1/cache/soegaard/sicp.plt/2/1/painters.rkt" (collects #"mzlib" #"defmacro.rkt"))

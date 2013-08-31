@@ -14,35 +14,8 @@
 (define (inc-2 n)
   (+ n 2))
 
-(define test-one (add-1 zero))
-(define test-two (add-1 test-one))
-(define test-three (add-1 test-two))
-(define test-four (add-1 test-three))
-
-(newline)
-(display ((zero inc-2) 4))
-
-(newline)
-(display ((test-one inc-2) 4))
-
-(newline)
-(display ((test-two inc-2) 4))
-
-(newline)
-(display ((test-three inc-2) 4))
-
-(newline)
-(display ((test-four inc-2) 4))
-
-(newline)
-(display "test over, real code begin")
-
-(newline)
-(display ((one inc-2) 4))
-
-(newline)
-(display ((two inc-2) 4))
-
-(newline)
-(display (((add test-four two) inc-2) 4))
+;; here one means call the give function once, two twiece, ...
+(assert '(= ((one inc-2) 4) 6)) ;; +2
+(assert '(= ((two inc-2) 4) 8)) ;; +2 twice
+(assert '(= (((add one two) inc-2) 4) 10)) ;; three times
 

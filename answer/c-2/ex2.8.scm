@@ -8,4 +8,4 @@
 (define i-2 (make-interval 0 4))
 
 ;; the variable i is defined in ex2.7.scm
-(display (sub-interval i i-2))
+(print-interval (sub-interval i i-2)) ;; should be (0, 14)

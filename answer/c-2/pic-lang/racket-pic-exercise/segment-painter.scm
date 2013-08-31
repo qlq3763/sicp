@@ -197,7 +197,7 @@
 
 
 ;; c
-(define rogers (load-painter "fovnder.gif"))
+(define rogers (load-painter "rogers.gif"))
 
 (define (square-of-four tl tr bl br)
   (lambda (painter)

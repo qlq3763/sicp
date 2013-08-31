@@ -1,0 +1,387 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PLaneT Package Repository : Home &gt; soegaard &gt; sicp.plt &gt;  package version 2.1</title>
+<meta content="Racket" name="generator" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<link href="/plticon.ico" rel="icon" type="image/ico" />
+<link href="/plticon.ico" rel="shortcut icon" />
+<link href="/plt.css" rel="stylesheet" title="default" type="text/css" />
+<link rel="stylesheet" href="/css/main.css" type="text/css" /><link rel="stylesheet" href="/css/planet-browser-styles.css" type="text/css" /><style type="text/css">import "/css/main.css"; import "/css/planet-browser-styles.css"; import "http://www.racket-lang.org/plt.css"; </style>
+</head>
+<body><div class="racketnav"><div class="navcontent"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td><a href="http://racket-lang.org/"><span class="navtitle" style="font-size: 100px; vertical-align: middle;">(</span><span class="navtitle" style="font-size: 80px; vertical-align: middle;">(</span><span class="navtitle" style="font-size: 60px; vertical-align: middle;">(</span><span class="navtitle" style="font-size: 40px; vertical-align: middle;">&nbsp;</span><img alt="[logo]" src="/logo.png" style="vertical-align: middle; margin: 13px 0.25em 0 0; border: 0;" /><span class="navtitle" style="font-size: 80px; vertical-align: middle;">Racket</span><span class="navtitle" style="font-size: 40px; vertical-align: middle;">&nbsp;</span><span class="navtitle" style="font-size: 60px; vertical-align: middle;">)</span><span class="navtitle" style="font-size: 80px; vertical-align: middle;">)</span><span class="navtitle" style="font-size: 100px; vertical-align: middle;">)</span></a></td><td class="helpiconcell"><span class="helpicon"><a href="http://racket-lang.org/help.html">Need Help?</a></span></td></tr><tr><td colspan="2"><table width="100%"><tr><td class="navlinkcell"><span class="navitem"><span class="navlink"><a href="http://racket-lang.org/">About</a></span></span></td><td class="navlinkcell"><span class="navitem"><span class="navlink"><a href="http://racket-lang.org/download/">Download</a></span></span></td><td class="navlinkcell"><span class="navitem"><span class="navlink"><a href="http://docs.racket-lang.org/">Documentation</a></span></span></td><td class="navlinkcell"><span class="navitem"><span class="navcurlink"><a href="/">PLaneT</a></span></span></td><td class="navlinkcell"><span class="navitem"><span class="navlink"><a href="http://racket-lang.org/community.html">Community</a></span></span></td><td class="navlinkcell"><span class="navitem"><span class="navlink"><a href="http://racket-lang.org/learning.html">Learning</a></span></span></td></tr></table></td></tr></table></div></div>
+<div class="bodycontent"><div class="planet"><div class="filledinwhite"><div class="planetNav"><a href="/display.ss?">Home</a>&nbsp;&gt;&nbsp;<a href="/display.ss?owner=soegaard">soegaard</a>&nbsp;&gt;&nbsp;<a href="/display.ss?package=sicp.plt&amp;owner=soegaard">sicp.plt</a>&nbsp;&gt;&nbsp;<a href="/package-source/soegaard/sicp.plt/2/1/"> package version 2.1</a></div></div></div><div class="planet"><section>sicp-manual.txt</section><div><h1></h1><pre>
+The SICP Picture Language
+
+ (require (planet "sicp.ss" ("soegaard" "sicp.plt" 2 1)))
+
+
+
+
+
+
+
+
+This package provides support for the picture language used in SICP.
+The non-standard primitives cons-stream and amb are
+also provided.
+
+1. Introduction
+
+The SICP Picture Language is a small language for drawing pictures.
+It shows the power of data abstraction and closure. The picture language
+stems from Peter Henderson’s 1982 paper "Functional Geometry" and was
+included by Hal Abelson in "Structure and Interpretation of Computer
+Programs".
+
+Before using this package, read
+section 2.2.4 of SICP,
+which is an excellent introduction to the ideas of the picture language.
+This manual meant as a reference guide.
+
+Peter Henderson has written an updated version of
+"Functional Geometry",
+which explains how to construct the Escher fish image.
+
+Note: The primitives cons-stream and amb needed
+in other chapters of SICP are also provided.
+
+2. Reference
+
+The basic concept of the picture language is a painter. A painter draws
+it’s image (shifted and scaled) within a frame given by a parallelogram.
+Painters can be combined to construct new painters.
+
+3. Example
+
+  &gt; (require (planet "sicp.ss" ("soegaard" "sicp.plt" 2 1)))
+  &gt; (paint (number-&gt;painter 0))
+  &gt; (paint diagonal-shading)
+  &gt; (paint-hires  (below (beside diagonal-shading
+                          (rotate90 diagonal-shading))
+                  (beside (rotate270 diagonal-shading)
+                          (rotate180 diagonal-shading))))
+  &gt; (paint einstein)
+
+4. Vectors
+
+A mathematical vector is called a vect here, in order
+to avoid confusion with the builtin vectors of Scheme.
+
+(make-vect x y) -&gt; vect?
+  x : number?
+  y : number?
+
+Constructs a vect with the given coordinates.
+
+(vector-xcor v) -&gt; number?
+  v : vect?
+
+Returns the x-coordinate.
+
+(vector-ycor v) -&gt; number?
+  v : vect?
+
+Returns the y-coordinate.
+
+(vector-add v w) -&gt; vect?
+  v : vect?
+  w : vect?
+
+Adds the two vects by adding their coordinates pairwise.
+
+(vector-sub v w) -&gt; vect?
+  v : vect?
+  w : vect?
+
+Subtracts the two vects by subtracting their coordinates pairwise.
+
+(vector-scale s v) -&gt; vect?
+  s : number?
+  v : vect?
+
+Scales the vect by multiplying each coordinate of "v" with
+the number "s".
+
+5. Frames
+
+A frame is descibed by three vectors.
+
+    ^
+    | frame edge2 vector
+    |
+   _|__________&gt;
+   /|         frame edge1 vector
+  /
+ /
+/ frame origin pointer
+
+(make-frame origin edge1 edge2) -&gt; frame?
+  origin : vect?
+  edge1 : vect?
+  edge2 : vect
+
+Constructs a frame from a frame origin vector and two frame edge vectors.
+
+(frame-origin f) -&gt; vect?
+  f : frame?
+
+(frame-edge1 f) -&gt; vect?
+  f : frame?
+
+(frame-edge2 f) -&gt; vect?
+  f : frame?
+
+Extracts the origin, first edge or second edge from a frame.
+
+(make-relative-frame origin corner1 corner2) -&gt; (frame? -&gt; frame?)
+  origin : vect?
+  corner1 : vect?
+  corner2 : vect?
+
+The function make-relative-frame provides a convenient way to
+transform frames.  Given a frame and three points : origin,
+corner1, and corner2 (expressed in frame coordinates),
+it returns a new frame with those corners.
+
+(frame-coord-map f) -&gt; (vect? -&gt; vect?)
+  f : frame?
+
+Each frame determines a system of "frame coordinates" (x,y) where
+(0,0) is the origin of the frame, x represents the displacement
+along the first edge (as a fraction of the length of the edge) and
+y is the displacement along the second edge.
+
+The frame coordinate map is returned by frame-coord-map. E.g.
+these expression return the same value:
+
+((frame-coord-map a-frame) (make-vect 0 0))
+
+(frame-origin a-frame)
+
+6. Segments
+
+A pair of vectors determines a directed line segment - the segment
+running from the endpoint of the first vector to the endpoint of the
+second vector.
+
+(make-segment from to) -&gt; segment?
+  from : vect?
+  to : vect?
+
+(segment-start s) -&gt; vect?
+  s : segment?
+
+(segment-end s) -&gt; vect?
+  s : segment?
+
+7. Primitive Painters
+
+Painters take a frame and draw an image, transformed to fit inside the frame.
+
+There are four ways to create painters:
+
+* from a constant: number-&gt;painter
+
+* from a list of line segments:  segment-&gt;painter
+
+* form a procedure:              procedure-&gt;painter
+
+* from a picture:                picture-&gt;painter
+
+(number-&gt;painter color) -&gt; painter?
+  color : 0..255
+
+Constructs a painter that fills the frame with a gray color indicated
+by the number. 0 is black and 255 is white.
+
+(segments-&gt;painter los) -&gt; painter?
+  los : list-of-segment?
+
+Constructs a painter that draws a stick figure given by the
+segments (wrt the unit square).
+
+(procedure-&gt;painter p) -&gt; painter?
+  p : procedure?
+
+Creates painters from procedures.  We assume that the procedure
+f is defined on the unit square.
+
+Then to plot a point p in the target frame, we find the inverse image
+T^-1(p) of p under the transformation that maps the unit square to the
+target, and find the value of f at T-1(p).
+
+(picture-&gt;painter p) -&gt; painter?
+  p : picture
+
+The picture p is defined on some frame.
+
+Given a point p in the target frame, we compute T^-1(p) where T
+is the transformation that takes the picture frame to the
+target frame, and find the picture value at the closest
+integer point.
+
+(load-painter filename) -&gt; painter?
+  filename : path?
+
+Uses the image file given by filename to create a painter.
+
+8. Higher Order Painters
+
+(transform-painter origin corner1 corner2)
+ -&gt; (painter? -&gt; painter?)
+  origin : vect?
+  corner1 : vect?
+  corner2 : vect?
+
+A painter can be transformed to produce a new painter which, when
+given a frame, calls the original painter on the transformed frame.
+
+Transform-painter will given an origin and two corners, return
+a function that takes a painter as argument and returns
+a transformed painter.
+
+(flip-horiz p) -&gt; painter?
+  p : painter
+
+Returns a painter that flips the image horizontally.
+
+(flip-vert p) -&gt; painter?
+  p : painter
+
+Returns a painter that flips the image vertically.
+
+(rotate90 p) -&gt; painter?
+  p : painter
+
+(rotate180 p) -&gt; painter?
+  p : painter
+
+(rotate270 p) -&gt; painter?
+  p : painter
+
+Returns a painter that rotates the image.
+
+(beside p1 p2) -&gt; painter?
+  p1 : painter
+  p2 : painter
+
+Constructs a painter that paints the images side-by-side.
+
+(below p1 p2) -&gt; painter?
+  p1 : painter
+  p2 : painter
+
+Constructs a painter that paints the second image
+below the first.
+
+(superpose p1 p2) -&gt; painter?
+  p1 : painter
+  p2 : painter
+
+Constructs a painter that paints the two images
+on top of each other.
+
+9. Simple Builtin Painters
+
+The following painter values are buitin:
+
+black, white and gray
+     Fills the frame with black (0), white (255) or gray (150).
+
+diagonal-shading
+    Fills the frame with a shades of gray. The color transition
+    goes from black in the upper left corner is black, to gray
+    in the bottom right corner.
+
+einstein
+    Draws an image of Einstein.
+
+10. Painting
+
+The procedures paint and paint-hi-res takes a painter as input
+and return a snip containing the painter’s image. A snip is
+an image that DrScheme can display automatically.
+
+(paint p) -&gt; snip?
+  p : painter?
+
+(paint-hi-res p) -&gt; snip?
+  p : painter?
+
+11. Authors
+
+Abelson &amp; Sussman:
+Structure and Interpretation of Computer Programs.
+
+Daniel Coore: Original MIT Scheme code.
+
+Mike Sperber: PLT port.
+
+Jens Axel Søgaard: Documentation.
+
+12. Other
+
+See also the
+readme.html
+from the SICP web-site for more documentation and exercises.
+
+Peter Henderson’s
+"Functional Geometry".
+
+Index
+
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 
+ 
+(planet "sicp.ss" ("soegaard" "sicp.plt" 2 1))
+Authors
+below
+beside
+Escher
+Example
+flip-horiz
+flip-vert
+frame-coord-map
+frame-edge1
+frame-edge2
+frame-origin
+Frames
+geometry
+Higher Order Painters
+Introduction
+load-painter
+make-frame
+make-relative-frame
+make-segment
+make-vect
+number-&gt;painter
+Other
+paint
+paint-hi-res
+painter
+Painting
+picture
+picture-&gt;painter
+Primitive Painters
+procedure-&gt;painter
+Reference
+rotate180
+rotate270
+rotate90
+segment-end
+segment-start
+Segments
+segments-&gt;painter
+SICP
+sicp
+Simple Builtin Painters
+superpose
+The SICP Picture Language
+transform-painter
+vector-add
+vector-scale
+vector-sub
+vector-xcor
+vector-ycor
+Vectors</pre></div></div></div></body>
+</html>

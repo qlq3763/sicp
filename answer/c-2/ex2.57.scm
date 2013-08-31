@@ -7,10 +7,10 @@
                    (deriv (augend exp) var)))
         ((product? exp)
          (make-sum
-           (make-product (multiplier exp)
-                         (deriv (multiplicand exp) var))
-           (make-product (deriv (multiplier exp) var)
-                         (multiplicand exp))))
+	  (make-product (multiplier exp)
+			(deriv (multiplicand exp) var))
+	  (make-product (deriv (multiplier exp) var)
+			(multiplicand exp))))
         (else
          (error "unknown expression type -- DERIV" exp))))
 
@@ -21,128 +21,68 @@
 (define (same-variable? v1 v2)
   (and (variable? v1) (variable? v2) (eq? v1 v2)))
 
-(define (make-sum a1 a2) (list '+ a1 a2))
+;; simplify number elements by computing one result element
+;; instead of multiple
+(define (simplify-nums op initial elem-list)
+  (let ((nums (filter number? elem-list))
+	(non-nums (filter (lambda (x) (not (number? x))) elem-list)))
+    (let ((acc (accumulate op initial nums)))
+      (if (not (= acc initial))
+	  (cons acc non-nums)
+	  non-nums))))
 
-(define (make-product m1 m2) (list '* m1 m2))
+(define (one-elem? elem-list)
+  (= (length elem-list) 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; sum
+(define (make-sum . a)
+  (let ((elems (simplify-nums + 0 a)))
+    (cond ((null? elems)
+	   0) ;; (make-sum)=>0
+	  ((one-elem? elems)
+	   (car elems))
+	  (else (cons '+ elems)))))
 
 (define (sum? x)
   (and (pair? x) (eq? (car x) '+)))
 
 (define (addend s) (cadr s))
 
-(define (augend s) (caddr s))
+(define (augend s) 
+  (nry s '+))
+
+(assert '(equal? (make-sum 1 2 3 4) 10))
+(assert '(equal? (make-sum) 0))
+(assert '(equal? (make-sum 3) 3))
+(assert '(equal? (make-sum 'x) 'x))
+(assert '(equal? (make-sum 1 'x 2 3 'y) '(+ 6 x y)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; product
+(define (make-product . a)
+  (let ((elems (simplify-nums * 1 a)))
+    (cond ((null? elems)
+	   1) ;; (make-product)=>1
+	  ((one-elem? elems)
+	   (car elems))
+	  (else (cons '* elems)))))
 
 (define (product? x)
   (and (pair? x) (eq? (car x) '*)))
 
-(define (multiplier p) (cadr p))
+(define (multiplicand p)
+  (nry p '*))
 
-(define (multiplicand p) (caddr p))
-
-
-;; (print (deriv '(+ x 3) 'x))
-;; (print (deriv '(* x y) 'x))
-;; (print (deriv '(* (* x y) (+ x 3)) 'x))
-
-
-;; With simplification
-
-(define (make-sum a1 a2)
-  (cond ((=number? a1 0) a2)
-        ((=number? a2 0) a1)
-        ((and (number? a1) (number? a2)) (+ a1 a2))
-        (else (list '+ a1 a2))))
-
-(define (make-sum a1 . a2)
-  (cond ((< (length a2) 1)
-	 (print 'wrong))
-	((= (length a2) 1)
-	 (list '+ a1 (car a2)))
-	(else (list '+ a1 (make-sum a2)))))
+(define (multiplier p) (cadr p))  
 
 (define (=number? exp num)
   (and (number? exp) (= exp num)))
 
-(define (make-product m1 m2)
-  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
-        ((=number? m1 1) m2)
-        ((=number? m2 1) m1)
-        ((and (number? m1) (number? m2)) (* m1 m2))
-        (else (list '* m1 m2))))
-
-
-;; (print (deriv '(+ x 3) 'x))
-;; (print (deriv '(* x y) 'x))
-;; (print (deriv '(* (* x y) (+ x 3)) 'x))
-
-(define (make-exponentiation u n)
-  (cond ((= n 0)
-	 1)
-	((= n 1)
-	 u)
-	(else (list '** u n))))
-
-(define (exponentiation? x)
-  (and (pair? x) (eq? (car x) '**)))
-
-(define (base x)
-  (cadr x))
-
-(define (exponent x)
-  (caddr x))
-
-(define (deriv exp var)
-  (cond ((number? exp) 0)
-        ((variable? exp)
-         (if (same-variable? exp var) 1 0))
-        ((sum? exp)
-	 ;(print exp)
-         (make-sum (deriv (addend exp) var)
-                   (deriv (augend exp) var)))
-        ((product? exp)
-         (make-sum
-           (make-product (multiplier exp)
-                         (deriv (multiplicand exp) var))
-           (make-product (deriv (multiplier exp) var)
-                         (multiplicand exp))))
-	((exponentiation? exp) ;; add here
-	 (make-product (make-product (exponent exp) 
-				     (make-exponentiation (base exp) 
-							  (- (exponent exp) 1)))
-		       (deriv (base exp) var))) ;; end add here
-        (else
-         (error "unknown expression type -- DERIV" exp))))
-
-;; (print (deriv '(* 4 (** x 0)) 'x))
-;; (print (deriv '(+ 4 (* 4 (** x 1))) 'x))
-;; (print (deriv '(+ (* 4 x) (** x 4)) 'x))
-
-(define (make-sum a1 a2)
-  (cond ((=number? a1 0) a2)
-        ((=number? a2 0) a1)
-        ((and (number? a1) (number? a2)) (+ a1 a2))
-        (else (list '+ a1 a2))))
-
-;; (define (make-sum a1 . a2)
-;;   (define (nest-sum addend augend)
-;;     ;(print augend)
-;;     (cond ((< (length augend) 1)
-;; 	   (print 'wrong))
-;; 	  ((= (length augend) 1)
-;; 	   (list '+ addend (car augend)))
-;; 	  (else (list '+ addend (nest-sum (car augend) (cdr augend))))))
-;;   (nest-sum a1 a2))
-
-(define (addend s) (cadr s))
-
-
-(define (augend s) 
-  (nry s '+))
-
-(define (multiplicand p)
-  (nry p '*))
-  
-  ;(caddr p))
+(assert '(equal? (make-product) 1))
+(assert '(equal? (make-product 'x) 'x))
+(assert '(equal? (make-product 1 2 3 4) 24))
+(assert '(equal? (make-product 1 2 3 'x 4 'y) '(* 24 x y)))
 
 ;; if seq is of the form (op, arg1, arg2), then return arg2.
 ;; if seq is of the from (op, arg1, arg2, ...argn), return (op arg2, ...argn).
@@ -152,16 +92,17 @@
 	(car rest)
 	(cons op rest))))
 
-(print (deriv '(+ x x x x) 'x))
+(assert '(equal? (deriv '(+ x x x x) 'x) 4))
+(newline)
 (print (deriv '(* x x x x) 'x))
 
-(define (product? x)
-  (and (pair? x) (eq? (car x) '*)))
-
-(define (multiplier p) (cadr p))
-
-;; (define add_four_elem (make-sum 1 2 3 4))
-
-;; (print add_four_elem)
-;; (print (addend add_four_elem))
-;; (print (augend add_four_elem))
+;; Actually, I think the first parameter to deriv should be constructed
+;; (only) from make-sum, make-product. '(+ x x x) actually is making 
+;; assumption about how sum is represented. It assumes there is list,
+;; but how about sum being represented by (cons + (cons ...))?
+;; Another point: this is white box test. Still I don't think directly
+;; giving list as arguemnt is a good idea. Suppose the representation
+;; of sum has changed, then the tests need to change too.
+(assert '(equal? (deriv (make-sum) 'x) 0))
+(assert '(equal? (deriv (make-sum 'x) 'x) 1))
+;; (assert '(equal? (deriv '(+ x) 'x) 1)) ;; augend will fail

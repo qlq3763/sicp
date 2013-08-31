@@ -5,4 +5,5 @@
 	      0
 	      coefficient-sequence))
 
-(horner-eval 2 (list 1 3 0 5 0 1))
+(newline)
+(print (horner-eval 2 (list 1 3 0 5 0 1))) ;; should be 79

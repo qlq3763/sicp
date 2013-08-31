@@ -17,6 +17,7 @@
 			    l
 			    '())))
 
+;; this version requires the list contians at least one argument
 (define (same-parity-2 x . l)
   (define (inner x l)
     (let ((rem (remainder x 2)))

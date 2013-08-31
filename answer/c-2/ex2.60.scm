@@ -21,6 +21,7 @@
 (define set1 '(1 2 3))
 (define set2 '(2 3 4))
 (define set3 (adjoin-set 4 set2))
+(newline)
 (print set1)
 (print set2)
 (print set3)

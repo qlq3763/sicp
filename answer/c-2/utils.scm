@@ -26,33 +26,6 @@
 
 (define (average x y) (/ (+ x y) 2))
 
-;; accumulator
-(define (accumulate combiner null-value term a next b)
-  (if (> a b)
-      null-value
-      (combiner (term a)
-		(accumulate combiner 
-			    null-value 
-			    term 
-			    (next a)
-			    next
-			    b))))
-
-(define (sum term a next b)
-  (accumulate + 0 term a next b))
-
-(define (product term a next b)
-  (accumulate * 1 term a next b))
-
-(define (filtered-accumulate filter combiner null-value
-			     term a next b)
-  (define (iter a result)
-    (cond ((> a b) result)
-	  ((if (filter a)
-	       (iter (next a) (combiner (term a) result))
-	       (iter (next a) result)))))
-  (iter a null-value))
-
 ;; prime?
 (define (prime? n)
   (define (smallest-divisor n)
@@ -81,3 +54,36 @@
           next
           (try next))))
   (try first-guess))
+
+;; use the hint: ab^n as an invariant
+(define (fast-expt-iter b n)
+  (define (iter b n a)
+    (cond ((= n 0) a)
+	  ((even? n) (iter (square b) 
+			   (/ n 2) 
+			   a))
+	  (else (iter b 
+		      (- n 1)
+		      (* a b)))))
+  (iter b n 1))
+
+;; 
+(define nil '())
+
+;;
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+;;
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+
+;; 
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (+ low 1) high))))

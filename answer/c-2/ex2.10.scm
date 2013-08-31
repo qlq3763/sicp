@@ -13,19 +13,12 @@
 (define (div-interval x y)
   (if (and (<= (lower-bound y) 0)
 	   (>= (upper-bound y) 0))
-      false
+      (error "divided by zero")
   (mul-interval x 
                 (make-interval (/ 1.0 (upper-bound y))
                                (/ 1.0 (lower-bound y))))))
 
 (define i-3 (make-interval -4 4))
-
-(define (cond-print-interval i)
-  (if (not i)
-      (display "something went wrong.")
-      (print-interval i)))
-
 ;; i defined in ex2.7.scm, i-2 in ex2.8.scm
-(cond-print-interval (div-interval i i))
-
-(cond-print-interval (div-interval i i-3))
+(print-interval (div-interval i i))
+(print-interval (div-interval i i-3))

@@ -1,3 +1,4 @@
+(newline)
 (print (list 'a 'b 'c)) ; (a, b, c)
 
 (print (list (list 'george))) ;((george))

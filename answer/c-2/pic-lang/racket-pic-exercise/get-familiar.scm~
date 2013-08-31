@@ -1,0 +1,5 @@
+#lang scheme
+(require (planet "sicp.ss" ("soegaard" "sicp.plt" 2 1)))
+
+;;(define rogers (load-painter "rogers.gif"))
+(define rogers (load-painter "rogers.gif"))

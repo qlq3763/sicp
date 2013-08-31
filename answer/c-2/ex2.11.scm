@@ -24,33 +24,47 @@
 	 (y2 (upper-bound y)))
      (define (cond-p op-1 op-2 op-3 op-4)
        (and (op-1 x1 0) (op-2 x2 0) (op-3 y1 0) (op-4 y2 0)))
-     (define (cond-b a b c d)
+     (define (make-i a b c d)
        (make-interval (* a b) (* c d)))
      (cond ((cond-p >= >= >= >=) ;1 #
-	    (cond-b x1 y1 x2 y2))
+	    (make-i x1 y1 x2 y2))
 	   ((cond-p >= >= <= >=) ;3 #
-	    (cond-b x2 y1 x2 y2))
+	    (make-i x2 y1 x2 y2))
 	   ((cond-p >= >= <= <=) ;4 #
-	    (cond-b x2 y1 x1 y2))
+	    (make-i x2 y1 x1 y2))
 	   ((cond-p <= >= >= >=) ;9 #
-	    (cond-b x1 y2 x2 y2))
+	    (make-i x1 y2 x2 y2))
 	   ((cond-p <= >= <= >=) ;11#
 	    (make-interval (min (* x1 y2) (* x2 y1))
 			   (max (* x1 y1) (* x2 y2))))
 	   ((cond-p <= >= <= <=) ;12#
-	    (cond-b x2 y1 x1 y1))
+	    (make-i x2 y1 x1 y1))
 	   ((cond-p <= <= >= >=) ;13#
-	    (cond-b x1 y2 x2 y1))
+	    (make-i x1 y2 x2 y1))
 	   ((cond-p <= <= <= >=) ;15#
-	    (cond-b x1 y2 x1 y1))
+	    (make-i x1 y2 x1 y1))
 	   ((cond-p <= <= <= <=) ;16#
-	    (cond-b x2 y2 x1 y1))
+	    (make-i x2 y2 x1 y1))
 	   (else (display "illegal interval")))))
 
+(define (interval=? i-1 i-2)
+  (and (= (lower-bound i-1) (lower-bound i-2))
+	   (= (upper-bound i-1) (upper-bound i-2))))
+		 
 (print-interval i)
 (print-interval i-2)
 (print-interval i-3)
 
+
 (print-interval (improved-mul-interval i i-2))
 (print-interval (improved-mul-interval i i-3))
-(print-interval (improved-mul-interval i-3 i-3))
+(print-interval (improved-mul-interval i-2 i-3))
+
+(assert '(interval=? (mul-interval i i-2)
+					 (improved-mul-interval i i-2)))
+
+(assert '(interval=? (mul-interval i i-3)
+					 (improved-mul-interval i i-3)))
+
+(assert '(interval=? (mul-interval i-2 i-3)
+					 (improved-mul-interval i-2 i-3)))

@@ -1,6 +1,6 @@
 ; My understanding of the form of a solution: (x x x x x x x x), 
 ; where x stands for a number between 1 and 8, and each x means that
-; there is a queen x row in the corresponging column. For example, the 
+; there is a queen at x row at the corresponging column. For example, the 
 ; solution given by figure 2.8 represented in this way will be:
 ; (3 7 2 8 5 1 4 6). Representing a solution in this way, the procedure will
 ; not need the parameter k, which means a column, because the information of 
@@ -29,21 +29,21 @@
   (define (safe? k positions)
     (define (test new-col new-row cur-col positions)
       (cond ((null? positions)
-	     true)
-	    (else
-	     (let ((cur-row (car positions)))
-	       (if (or (= new-row cur-row)
-		       (= (abs (- new-row cur-row)) ;forgot abs first time
-			  (abs(- new-col cur-col))))
-		   false
-		   (test new-col new-row (+ cur-col 1) (cdr positions)))))))
+			 true)
+			(else
+			 (let ((cur-row (car positions)))
+			   (if (or (= new-row cur-row)
+					   (= (abs (- new-row cur-row)) ;forgot abs first time
+						  (abs(- new-col cur-col))))
+				   false
+				   (test new-col new-row (+ cur-col 1) (cdr positions)))))))
 
     (if (null? positions) ; redudant
-	true                             ; if to protest this
-	(test k 
-	      (list-ref positions (- k 1))
-	      1                                ; ugly mistake
-	      (list-head positions (- k 1))))) ; use cdr positions first time
+		true                             
+		(test k 
+			  (list-ref positions (- k 1))     ; if to protest this
+			  1                                ; silly mistake
+			  (list-head positions (- k 1))))) ; use cdr positions first time
 
   (define (queen-cols k)
     (if (= k 0)
@@ -81,13 +81,13 @@
     	     true)
     	    (else
     	     (let ((cur-col (get-col (first-position rest-positions)))
-    		   (cur-row (get-row (first-position rest-positions))))
+				   (cur-row (get-row (first-position rest-positions))))
     	       (if (or (= new-row cur-row)
-    		       (= (abs (- new-row cur-row)) ;forgot abs first time
-    			  (abs(- new-col cur-col))))
-    		   false
-    		   (test new-col new-row (cdr rest-positions)))))))
-	  
+					   (= (abs (- new-row cur-row)) ;forgot abs first time
+						  (abs(- new-col cur-col))))
+				   false
+				   (test new-col new-row (cdr rest-positions)))))))
+	
     (if (null? positions) ; redudant
     	true                             ; if to protest this
     	(test k
@@ -149,6 +149,7 @@
   (queen-cols board-size))
 
 ;((2 4 1 3) (3 1 4 2))
+(newline)
 (print (queens-1 4))
 (print (queens-2 4))
 (print (queens-3 4))
@@ -159,6 +160,5 @@
 ; note the answer of reversibiity between queens-1 and queens-3
 
 ; one thing to note: the relation between adjion-position and safe?
-; is tight, very tight in all these three implementations. And this
-; relation can be decoupled in the second form, but can not in the 
-; first and third form.
+; is tight. And this relation can be decoupled in the second form, 
+; but can not in the first and third form.

@@ -17,14 +17,16 @@
 (define l-3 (list 1 2 3 4 14))
 (define l-4 (list -1 1 4 14 -4))
 
-(newline)
-(display (square-list l-3))
+(assert '(list=? (square-list l-3)
+				 '(1 4 9 16 196)
+				 =))
+(assert '(list=? (square-list l-4)
+				 '(1 1 16 196 16)
+				 =))
 
-(newline)
-(display (square-list l-4))
-
-(newline)
-(display (square-list-2 l-3))
-
-(newline)
-(display (square-list-2 l-4))
+(assert '(list=? (square-list-2 l-3)
+				 '(1 4 9 16 196)
+				 =))
+(assert '(list=? (square-list-2 l-4)
+				 '(1 1 16 196 16)
+				 =))

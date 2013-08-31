@@ -1,29 +1,9 @@
-(define (deriv exp var)
-  (cond ((number? exp) 0)
-        ((variable? exp)
-         (if (same-variable? exp var) 1 0))
-        ((sum? exp)
-         (make-sum (deriv (addend exp) var)
-                   (deriv (augend exp) var)))
-        ((product? exp)
-         (make-sum
-           (make-product (multiplier exp)
-                         (deriv (multiplicand exp) var))
-           (make-product (deriv (multiplier exp) var)
-                         (multiplicand exp))))
-        (else
-         (error "unknown expression type -- DERIV" exp))))
-
 ;; representing algebraic expressions
 
 (define (variable? x) (symbol? x))
 
 (define (same-variable? v1 v2)
   (and (variable? v1) (variable? v2) (eq? v1 v2)))
-
-(define (make-sum a1 a2) (list '+ a1 a2))
-
-(define (make-product m1 m2) (list '* m1 m2))
 
 (define (sum? x)
   (and (pair? x) (eq? (car x) '+)))
@@ -38,12 +18,6 @@
 (define (multiplier p) (cadr p))
 
 (define (multiplicand p) (caddr p))
-
-
-(print (deriv '(+ x 3) 'x))
-(print (deriv '(* x y) 'x))
-(print (deriv '(* (* x y) (+ x 3)) 'x))
-
 
 ;; With simplification
 
@@ -63,17 +37,15 @@
         ((and (number? m1) (number? m2)) (* m1 m2))
         (else (list '* m1 m2))))
 
-
-(print (deriv '(+ x 3) 'x))
-(print (deriv '(* x y) 'x))
-(print (deriv '(* (* x y) (+ x 3)) 'x))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; exponentiation
 
 (define (make-exponentiation u n)
   (cond ((= n 0)
-	 1)
-	((= n 1)
-	 u)
-	(else (list '** u n))))
+		 1)
+		((= n 1)
+		 u)
+		(else (list '** u n))))
 
 (define (exponentiation? x)
   (and (pair? x) (eq? (car x) '**)))
@@ -93,18 +65,20 @@
                    (deriv (augend exp) var)))
         ((product? exp)
          (make-sum
-           (make-product (multiplier exp)
-                         (deriv (multiplicand exp) var))
-           (make-product (deriv (multiplier exp) var)
-                         (multiplicand exp))))
+	  (make-product (multiplier exp)
+			(deriv (multiplicand exp) var))
+	  (make-product (deriv (multiplier exp) var)
+			(multiplicand exp))))
 	((exponentiation? exp) ;; add here
-	 (make-product (make-product (exponent exp) 
-				     (make-exponentiation (base exp) 
-							  (- (exponent exp) 1)))
+	 (make-product (make-product 
+			(exponent exp) 
+			(make-exponentiation (base exp) 
+					     (- (exponent exp) 1)))
 		       (deriv (base exp) var))) ;; end add here
         (else
          (error "unknown expression type -- DERIV" exp))))
 
+(newline)
 (print (deriv '(* 4 (** x 0)) 'x))
 (print (deriv '(+ 4 (* 4 (** x 1))) 'x))
 (print (deriv '(+ (* 4 x) (** x 4)) 'x))
