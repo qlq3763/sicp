@@ -1,13 +1,13 @@
-;; (define (deriv exp var)
-;;    (cond ((number? exp) 0) ; not the same number? defined in deriv-package
-;;          ((variable? exp) (if (same-variable? exp var) 1 0))
-;;          (else ((get 'deriv (operator exp)) (operands exp) var))))
-
-;;; for exercise 2.73 d.
 (define (deriv exp var)
-   (cond ((number? exp) 0) ; not the same number? defined in deriv-package
-         ((variable? exp) (if (same-variable? exp var) 1 0))
-         (else ((get (operator exp) 'deriv) (operands exp) var))))
+  (cond ((number? exp) 0)
+	((variable? exp) (if (same-variable? exp var) 1 0))
+	(else ((get 'deriv (operator exp)) (operands exp) var))))
+
+;; for d
+;; (define (deriv exp var)
+;;   (cond ((number? exp) 0) 
+;; 	((variable? exp) (if (same-variable? exp var) 1 0))
+;; 	(else ((get (operator exp) 'deriv) (operands exp) var))))
 
 (define (operator exp) (car exp))
 
@@ -33,57 +33,57 @@
   ;; With simplification
 
   (define (make-sum a1 a2)
-	(cond ((=number? a1 0) a2)
-		  ((=number? a2 0) a1)
-		  ((and (number? a1) (number? a2)) (+ a1 a2))
-		  (else (list '+ a1 a2))))
+    (cond ((=number? a1 0) a2)
+	  ((=number? a2 0) a1)
+	  ((and (number? a1) (number? a2)) (+ a1 a2))
+	  (else (list '+ a1 a2))))
 
   (define (=number? exp num)
-	(and (number? exp) (= exp num)))
+    (and (number? exp) (= exp num)))
 
   (define (make-product m1 m2)
-	(cond ((or (=number? m1 0) (=number? m2 0)) 0)
-		  ((=number? m1 1) m2)
-		  ((=number? m2 1) m1)
-		  ((and (number? m1) (number? m2)) (* m1 m2))
-		  (else (list '* m1 m2))))
+    (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+	  ((=number? m1 1) m2)
+	  ((=number? m2 1) m1)
+	  ((and (number? m1) (number? m2)) (* m1 m2))
+	  (else (list '* m1 m2))))
 
   (define (deriv-sum operands var)
-	(make-sum (deriv (addend operands) var)
-			  (deriv (augend operands) var)))
+    (make-sum (deriv (addend operands) var)
+	      (deriv (augend operands) var)))
   
   (define (deriv-product operands var)
-	(make-sum
-	 (make-product (multiplier operands)
-				   (deriv (multiplicand operands) var))
-	 (make-product (deriv (multiplier operands) var)
-				   (multiplicand operands))))
+    (make-sum
+     (make-product (multiplier operands)
+		   (deriv (multiplicand operands) var))
+     (make-product (deriv (multiplier operands) var)
+		   (multiplicand operands))))
   
   (define (make-exponentiation u n)
-	(cond ((= n 0)
-		   1)
-		  ((= n 1)
-		   u)
-		  (else (list '** u n))))
+    (cond ((= n 0)
+	   1)
+	  ((= n 1)
+	   u)
+	  (else (list '** u n))))
 
   (define (base x)
-	(car x))
+    (car x))
 
   (define (exponent x)
-	(cadr x))
+    (cadr x))
   
   (define (deriv-expt operands var)
-	(make-product (make-product (exponent operands) 
-								(make-exponentiation 
-								 (base operands) 
-								 (- (exponent operands) 1)))
-				  (deriv (base operands) var)))
+    (make-product (make-product (exponent operands) 
+				(make-exponentiation 
+				 (base operands) 
+				 (- (exponent operands) 1)))
+		  (deriv (base operands) var)))
 
   (put 'deriv '** deriv-expt)
   (put 'deriv '+ deriv-sum)
   (put 'deriv '* deriv-product)
 
-  ;; for d.
+  ;; ;; for d.
   (put '** 'deriv deriv-expt)
   (put '+ 'deriv deriv-sum)
   (put '* 'deriv deriv-product)
@@ -91,6 +91,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;; test ;;;;;;;;;;;;;;;;;;;;;;;;
 (install-deriv-package)
+
+(newline)
 (print (deriv '(+ x 3) 'x))
 (print (deriv '(* x y) 'x))
 (print (deriv '(* (* x y) (+ x 3)) 'x))

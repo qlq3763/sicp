@@ -1918,12 +1918,15 @@ n + (n - 1) + (n - 2) + ... + 1 = n(n + 1) / 2, which is of order O(n^2).
 
 * 2.4 Multiple Representation for Abstract Data
 ** Exercise 2.73
-a. 
-There are no operator or operands in a number and variable.
+a.
+What was done above: re-organize the deriv procedure using
+data-directed style.  
+ 
+Why: There are no operator or operands in a number and variable.
  
 b. 
 (define (deriv exp var)
-   (cond ((number? exp) 0) ; not the same number? defined in deriv-package
+   (cond ((number? exp) 0) 
          ((variable? exp) (if (same-variable? exp var) 1 0))
          (else ((get 'deriv (operator exp)) (operands exp)
                                             var))))
@@ -1950,7 +1953,6 @@ b.
   (define (multiplicand p) (cadr p))
 
   ;; With simplification
-
   (define (make-sum a1 a2)
 	(cond ((=number? a1 0) a2)
 		  ((=number? a2 0) a1)
@@ -2130,13 +2132,13 @@ install-deriv-package:
           ((eq? op 'magnitude) mag)
           ((eq? op 'angle) ang)
           (else
-           (error "Unknown op -- MAKE-FROM-REAL-IMAG" op))))
+           (error "Unknown op -- MAKE-FROM-MAG-ANG" op))))
   dispatch)
 
 ** Exercise 2.76
 1. generic operations with explicit dispatch:
 (1) new type: every operation associated with this new type need a "new"
-name, and the every generic operation will need add a new-type?
+name, and every generic operation will need add a new-type?
 conditional branch.
 (2)new operation: the generic operation part need to add a generation
 corresponding operation and conditional branch for every type that
@@ -2156,14 +2158,15 @@ operation part needn't change.
 (2) new operation: the generic operation part need to add a
 corresponding operation(one line of code using apply generic), and the
 "intelligent data type" that plans to support this new operation need
-t add a new conditional branch in its dispatch part.
+to add a new conditional branch in its dispatch part.
 
 "1." is the worst if new types must often be added.
 
 In my opinion all the three need almost the same amount work to add a
 new operation, "2." and "3." have more encapsulation than "1.". If
 taking the work of "type work" into consideration, "3." is the most
-appropriate.
+appropriate. "1." is more apparent, maybe more understandable, for it 
+explicitly shows what types a generic operation supports.
 
 * 2.5 Systems with Generic Operations
 ** Exercise 2.77

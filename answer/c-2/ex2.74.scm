@@ -1,3 +1,16 @@
+(define (attach-tag type-tag contents)
+  (cons type-tag contents))
+
+(define (type-tag datum)
+  (if (pair? datum)
+      (car datum)
+      (error "Bad tagged datum -- TYPE-TAG" datum)))
+
+(define (contents datum)
+  (if (pair? datum)
+      (cdr datum)
+      (error "Bad tagged datum -- CONTENTS" datum)))
+
 ;; a.
 ;; The personnel file must be type-tagged by its division name. 
 ;; The type of information must be supplied is: division name.
@@ -21,11 +34,11 @@
 ;; c.
 (define (find-employee-record personnel-list name)
   (if (null? personnel-list)
-	  false
-	  (let ((result (get-record (car personnel-list) name)))
-		(if result
-			result
-			(find-employee-record (cdr personnel-list) name)))))
+      false
+      (let ((result (get-record (car personnel-list) name)))
+	(if result
+	    result
+	    (find-employee-record (cdr personnel-list) name)))))
 
 ;; d.
 ;; Tag all personnel file and employee record. And "put" the according
@@ -33,19 +46,20 @@
 
 ;; The following is a simple example
 
+;; ordered by name
 (define (install-division-1-pakg)
-  (define (get-name record); with division name
+  (define (get-name record)
 	(cadr record))
  
   (define (get-record division name)
-	(if (or (null? division) (string<? (symbol->string name) 
-									   (symbol->string (get-name (car division)))))
-		false
-		(if (equal? (get-name (car division)) name)
-			(car division)
-			(get-record (cdr division) name))))
+    (if (or (null? division) (string<? (symbol->string name) 
+				       (symbol->string (get-name (car division)))))
+	false
+	(if (equal? (get-name (car division)) name)
+	    (car division)
+	    (get-record (cdr division) name))))
 
-  (define (get-salary record) ; without division name
+  (define (get-salary record)
 	(caddr record))
 
   (put 'get-record 'division-1 get-record)
@@ -53,17 +67,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (install-division-2-pakg)
-  (define (get-name record) ; with
+  (define (get-name record) 
 	(cadddr record))
  
   (define (get-record division name)
-	(if (null? division)
-		false
-		(if (equal? (get-name (car division)) name)
-			(car division)
-			(get-record (cdr division) name))))
+    (if (null? division)
+	false
+	(if (equal? (get-name (car division)) name)
+	    (car division)
+	    (get-record (cdr division) name))))
 
-  (define (get-salary record) ; without
+  (define (get-salary record) 
 	(cadr record))
 
   (put 'get-record 'division-2 get-record)
@@ -71,20 +85,21 @@
 
 ;; ordered by name
 (define division-1 '(division-1 
-					 (division-1 a1 addr-a1 salary-a1) 
-					 (division-1 c1 addr-c1 salary-c1) 
-					 (division-1 d1 addr-d1 salary-d1)))
+		     (division-1 a1 addr-a1 salary-a1) 
+		     (division-1 c1 addr-c1 salary-c1) 
+		     (division-1 d1 addr-d1 salary-d1)))
 
 (define division-2 '(division-2
-					 (division-2 addr-a2 salary-a2 a2) 
-					 (division-2 addr-c2 salary-c2 c2)
-					 (division-2 addr-d2 salary-d2 d2)))
+		     (division-2 addr-a2 salary-a2 a2) 
+		     (division-2 addr-c2 salary-c2 c2)
+		     (division-2 addr-d2 salary-d2 d2)))
 ;; (print division-1)
 ;; (print division-2)
 
 (install-division-1-pakg)
 (install-division-2-pakg)
 
+(newline)
 (print (get-salary (get-record division-1 'a1)))
 (print (get-salary (get-record division-1 'c1)))
 (print (get-record division-1 'd1))
