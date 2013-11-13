@@ -2361,7 +2361,7 @@ explicitly shows what types a generic operation supports.
 ;; proc = (get 'magnitude '(complex))
 ;; args = ((rectangular 3 . 4))
 ;; (apply proc args) ->
-;; (apply-generic 'magnitude (rectangular 3 . 4)) ->
+;; (apply-generic 'magnitude ((rectangular 3 . 4))) ->
 ;; (apply (get 'magnitude '(rectangular) ((3 . 4)))) ->
 ;; 5
 
@@ -3192,3 +3192,14 @@ equ-complex to use equ?
 ;; and my current package can not do real * rational
 ;; (print (=zero? z-3))
 ;; (print (=zero? z-4))
+
+** Exercise 2.77-2.86
+Should see this file for the full four type implementation:
+Integer, Rational, Real and complex.
+
+Did not try to improve the older version to incorporate type
+Real. 
+
+This file contains all the concepts introduced in those exercises.
+
+** Todo 2.87

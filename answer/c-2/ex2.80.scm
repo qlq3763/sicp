@@ -23,6 +23,7 @@
 (define s-1 (make-scheme-number 0))
 (define s-2 (make-scheme-number 4))
 ;; (define s-3 (make-scheme-number -4))
+(newline)
 (print (=zero? s-1))
 (print (=zero? s-2))
 (print (=zero? 0))

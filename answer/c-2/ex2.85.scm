@@ -35,7 +35,7 @@
   (let ((d-p (get 'drop (list (type-tag x)))))
 	(if d-p
 		(let ((dropped (d-p (contents x))))
-		  (if (equ? dropped x)
+		  (if (equ? dropped x) ;; equ? will raise dropped
 			  (project dropped)
 			  x))
 		x)))
@@ -51,6 +51,7 @@
 (define s-1 (make-scheme-number 0))
 (define s-2 (make-scheme-number 4))
 (define s-3 (make-scheme-number -4))
+(newline)
 (print (drop s-3))
 (print (drop 14))
 (print "scheme-num done\n\n")

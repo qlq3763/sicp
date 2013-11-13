@@ -20,6 +20,8 @@
 (define s-1 (make-scheme-number 4))
 (define s-2 (make-scheme-number 4))
 (define s-3 (make-scheme-number -4))
+
+(newline)
 (print (equ? s-1 s-2))
 (print (equ? s-1 s-3))
 (print (equ? 2 2))

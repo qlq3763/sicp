@@ -1,6 +1,6 @@
 (define (apply-generic op . args)
   (define (same-type? lst)
-	(let ((type (car lst)))
+	(let ((type (car lst))) ;; assume lst has at least one element
 	  (every (lambda (x) (eq? x type)) lst)))
 
   (let ((type-tags (map type-tag args)))
@@ -65,11 +65,12 @@
 (define z-2 (make-complex-from-mag-ang 5 (atan 4 3)))
 (define z-3 (make-complex-from-mag-ang 0 (atan 3 3)))
 
-(print (try-coercion 'complex (list -4 s-1 s-2 z-1 z-2 r-1 z-3) '()))
-(print (try-coercion 'complex (list -4 s-1 s-2 z-1 z-2 z-3) '()))
+(newline)
+;; (print (try-coercion 'complex (list -4 s-1 s-2 z-1 z-2 r-1 z-3) '()))
+;; (print (try-coercion 'complex (list -4 s-1 s-2 z-1 z-2 z-3) '()))
 
-(print (coercion (list -4 s-1 s-2 z-1 z-2 r-1 z-3) 0))
-(print (coercion (list -4 s-1 s-2 z-1 z-2 z-3) 0))
+;; (print (coercion (list -4 s-1 s-2 z-1 z-2 r-1 z-3) 0))
+;; (print (coercion (list -4 s-1 s-2 z-1 z-2 z-3) 0))
 
 (print (add z-1 s-1))
 (print (add s-1 z-1))
@@ -87,6 +88,6 @@
 ;; quadrilateral). Going over each of these types and trying to
 ;; coerce them to each other won’t work. But they can all be coerced 
 ;; into polygon. This demonstrates the flaw of this method. What we
-;; should be really going is finding some common “ancestor” type for all
+;; should be really doing is finding some common “ancestor” type for all
 ;; the types we work on.
 

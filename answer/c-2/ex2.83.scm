@@ -17,6 +17,7 @@
   (apply-generic 'raise x))
 
 (define s-1 (make-scheme-number 0))
+(newline)
 (print (raise s-1))
 (print (raise 14))
 

@@ -173,7 +173,7 @@
   (define (make-from-real-imag x y) (cons x y))
   (define (magnitude z)
     (sqrt-g (add (square-g (real-part z))
-             (square-g (imag-part z)))))
+				 (square-g (imag-part z)))))
   (define (angle z)
     (atang (imag-part z) (real-part z)))
   (define (make-from-mag-ang r a) 
@@ -306,8 +306,9 @@
 ;; (print (equ? z-2 4))
 ;; (print (equ? z-1 z-2))
 ;; (print (equ? z-2 r-2))
+(newline)
 (print (add z-1 z-2))
-;; (print (add r-1 r-2))
+(print (add r-1 r-2))
 (print (add z-2 -4))
 (print (add z-1 r-2))
 ;; add and sub for regutangular complex numbers is ok.
@@ -315,6 +316,6 @@
 ;; can not do this because I didn't implemnet real-number 
 ;; (print (real-part z-3)) ;; this one will get a error, because
 ;; consine will not get an integer(actually get a "real number"
-;; and my current package can not do real * rational
+;; and my current package can not deal with "real rational"
 ;; (print (=zero? z-3))
 ;; (print (=zero? z-4))

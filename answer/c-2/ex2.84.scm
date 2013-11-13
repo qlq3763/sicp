@@ -1,5 +1,4 @@
 (define (apply-generic op . args)
-
   (let ((type-tags (map type-tag args)))
     (let ((proc (get op type-tags)))
       (if proc
@@ -44,7 +43,7 @@
 		arg
 		(raise-to (raise arg) target-type)))
 
-	(map (lambda (type) (raise-to type target-type)) arg-list))
+	(map (lambda (arg) (raise-to arg target-type)) arg-list))
 
 
 
@@ -58,6 +57,7 @@
 (define z-2 (make-complex-from-mag-ang 5 (atan 4 3)))
 (define z-3 (make-complex-from-mag-ang 0 (atan 3 3)))
 
+(newline)
 (print (add s-1 s-2))
 (print (add s-1 4))
 (print (add r-1 r-1))
@@ -91,7 +91,7 @@
 ;; (print (raise-to r-1 'rational))
 ;; (print (raise-to r-1 'complex))
 ;; (print (raise-to r-1 'scheme-number)) ;; don't do it
-(print "rational number done\n\n")
+;; (print "rational number done\n\n")
 
 ;; (define z-1 (make-complex-from-real-imag 0 0))
 ;; (print (raise-to z-1 'complex))

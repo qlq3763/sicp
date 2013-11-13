@@ -201,6 +201,19 @@
 (define (magnitude z) (apply-generic 'magnitude z))
 (define (angle z) (apply-generic 'angle z))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;; apply-generic ;;;;;;;;;;;;;;;;;;;;
+(define (apply-generic op . args)
+  ;; (newline)
+  ;; (print "args:")
+  ;; (print args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (error
+            "No method for these types -- APPLY-GENERIC"
+            (list op type-tags))))))
+
 ;;;;;;; install ;;;;;;;;;;;;;;;;;;;;;;;;;;
 (install-scheme-number-package)
 (install-rational-package)
@@ -221,8 +234,8 @@
 ;; proc = (get 'magnitude '(complex))
 ;; args = ((rectangular 3 . 4))
 ;; (apply proc args) ->
-;; (apply-generic 'magnitude (rectangular 3 . 4)) ->
-;; (apply (get 'magnitude '(rectangular) ((3 . 4)))) ->
+;; (apply-generic 'magnitude ((rectangular 3 . 4))) ->
+;; (apply (get 'magnitude '(rectangular)) ((3 . 4))) ->
 ;; 5
 
 ;; So, apply-generic is invoked twice.
